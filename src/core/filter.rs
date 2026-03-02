@@ -1,3 +1,4 @@
+use crate::core::FORBIDDEN_FILES;
 use anyhow::Result;
 use glob::Pattern;
 use std::path::Path;
@@ -29,7 +30,7 @@ impl FileFilter {
         }
 
         // 2. 플러그인 내부 금지된 파일 체크
-        if crate::core::FORBIDDEN_FILES.contains(&file_name) {
+        if FORBIDDEN_FILES.contains(&file_name) {
             anyhow::bail!("Forbidden file '{}' found in plugin: {:?}", file_name, path);
         }
 
@@ -87,7 +88,7 @@ mod tests {
         let root = dir.path();
         let filter = FileFilter::new();
 
-        for &f in crate::core::FORBIDDEN_FILES {
+        for &f in FORBIDDEN_FILES {
             let path = root.join(f);
             fs::write(&path, "content")?;
             let result = filter.is_valid(root, &path, &[]);

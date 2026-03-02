@@ -6,6 +6,7 @@ use self::emitter::Emitter;
 use crate::core::{AGENTS_MD, TransformedResource};
 use crate::loader::registry::Registry;
 use crate::transformer::Transformer;
+use crate::utils::yaml::extract_frontmatter;
 use anyhow::Context;
 use log::info;
 use std::path::Path;
@@ -29,8 +30,9 @@ impl Builder {
         let checker = DependencyChecker::new();
         checker.check_dependencies(registry, source_dir)?;
 
+        let all_resources = registry.all_resources();
         let mut transformed_resources = Vec::new();
-        for res in registry.all_resources() {
+        for res in &all_resources {
             let transformed_file = transformer
                 .transform(res)
                 .with_context(|| format!("Failed to transform resource: {}", res.name()))?;
@@ -41,12 +43,21 @@ impl Builder {
             });
         }
 
+        // Post-transform hook
+        let post_files = transformer.post_transform(&all_resources)?;
+        if !post_files.is_empty() {
+            transformed_resources.push(TransformedResource {
+                files: post_files,
+                extras: Vec::new(),
+            });
+        }
+
         // AGENTS.md 처리
         let agents_md_path = source_dir.join(AGENTS_MD);
         if agents_md_path.exists() {
             info!("  - Found root system prompt: {}", agents_md_path.display());
             let raw_content = std::fs::read_to_string(&agents_md_path)?;
-            let (_fm, pure_content) = crate::utils::yaml::extract_frontmatter(&raw_content);
+            let (_fm, pure_content) = extract_frontmatter(&raw_content);
             let transformed_file = transformer.transform_root_prompt(&pure_content)?;
 
             transformed_resources.push(TransformedResource {

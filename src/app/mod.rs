@@ -7,6 +7,8 @@ pub use config::*;
 pub use context::AppContext;
 
 use crate::builder::Builder;
+use crate::core::CONFIG_FILE_NAME;
+use crate::syncer::Syncer;
 use log::info;
 
 pub struct App;
@@ -24,8 +26,8 @@ impl App {
 
     pub fn run(&self, cli: Cli) -> anyhow::Result<()> {
         let config_file = match &cli.command {
-            Commands::Build { config } => config.as_deref().unwrap_or("agb.yaml"),
-            Commands::Sync { config } => config.as_deref().unwrap_or("agb.yaml"),
+            Commands::Build { config } => config.as_deref().unwrap_or(CONFIG_FILE_NAME),
+            Commands::Sync { config } => config.as_deref().unwrap_or(CONFIG_FILE_NAME),
         };
 
         let ctx = AppContext::init(config_file)?;
@@ -58,7 +60,7 @@ impl App {
             ctx.config.target
         );
 
-        let syncer = crate::syncer::Syncer::new(ctx.exclude_patterns.clone());
+        let syncer = Syncer::new(ctx.exclude_patterns.clone());
         for res in ctx.registry.all_resources() {
             syncer.sync_resource(res, ctx.transformer.as_ref(), &ctx.output_dir)?;
         }

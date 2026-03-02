@@ -1,4 +1,4 @@
-use crate::core::ResourceType;
+use crate::core::{CONFIG_FILE_NAME, DEPS_FILE_NAME, Resource, ResourceType};
 use crate::loader::registry::Registry;
 use anyhow::{Result, anyhow};
 use serde::Deserialize;
@@ -46,7 +46,7 @@ impl DependencyChecker {
     /// 단일 리소스의 의존성을 검사하고 발견된 오류를 errors 벡터에 수집합니다.
     fn check_resource_dependencies(
         &self,
-        resource: &crate::core::Resource,
+        resource: &Resource,
         registry: &Registry,
         source_dir: &Path,
         errors: &mut Vec<String>,
@@ -98,8 +98,8 @@ impl DependencyChecker {
                 // 5. 실제 존재 여부 확인
                 if !registry.contains_by_id(dt, dep_plugin, dep_name) {
                     errors.push(format!(
-                        "{} '{}:{}' requires {} '{}' but it is missing in agb.yaml",
-                        r_type, plugin, name, dt, dep_id
+                        "{} '{}:{}' requires {} '{}' but it is missing in {}",
+                        r_type, plugin, name, dt, dep_id, CONFIG_FILE_NAME
                     ));
                 }
             }
@@ -114,7 +114,7 @@ impl DependencyChecker {
             return Ok(cached.clone());
         }
 
-        let deps_path = source_dir.join("plugins").join(plugin).join("deps.yaml");
+        let deps_path = source_dir.join("plugins").join(plugin).join(DEPS_FILE_NAME);
         let config = if deps_path.exists() {
             let content = fs::read_to_string(&deps_path)?;
             let parsed: DependencyConfig = serde_yaml::from_str(&content)?;
@@ -131,7 +131,6 @@ impl DependencyChecker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::Resource;
     use crate::core::{ResourceData, SkillData};
     use serde_json::Value;
     use std::path::PathBuf;

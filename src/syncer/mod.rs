@@ -40,7 +40,7 @@ impl Syncer {
 
         // 역변환 (Detransform)
         let detransformed = transformer
-            .detransform(resource.r_type(), &target_content)
+            .detransform(resource.r_type(), resource.name(), &target_content, output_dir)
             .with_context(|| format!("Failed to detransform target file: {:?}", target_path))?;
 
         // 소스 정보 가져오기

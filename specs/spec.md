@@ -43,6 +43,11 @@
 | **Gemini-cli** | `*.toml` (Prompt 필드 포함) | `*.md` (메타데이터 포함) | `GEMINI.md` |
 | **Claude-code** | `*.md` (Frontmatter 포함) | `*.md` (Frontmatter 포함) | `CLAUDE.md` |
 | **OpenCode** | `*.md` (Frontmatter 포함) | `*.md` (Frontmatter 포함) | `AGENTS.md` |
+| **Codex** | `prompts/*.md` (Frontmatter 포함) | `agents/*.toml` (`developer_instructions` 필드 포함) | `AGENTS.md` |
+
+**특이사항 (Codex 멀티 에이전트)**:
+- Codex 빌드 시 각 Agent는 `.codex/config.toml` 이라는 전역 에이전트 설정 레지스트리 파일에 자동으로 취합되어 등록됩니다.
+- 개별 `agents/*.toml` 파일에는 에이전트 지시문(`developer_instructions`)만 저장되며, 설명(`description`)은 `.codex/config.toml` 내부에 저장됩니다.
 
 ## 5. 동기화 규격 (Sync Specifications)
 
@@ -50,6 +55,7 @@
 
 - **본문 동기화**: 마크다운 본문(Frontmatter 제외) 전체를 교체합니다.
 - **설명 동기화**: `description` 필드를 라인 단위로 패치합니다. **단, 멀티라인 description은 지원되지 않으며 감지 시 에러를 반환합니다.**
+  - **참고 (Codex)**: Codex Agent의 경우 `description`이 개별 TOML이 아닌 `.codex/config.toml`에 위치하므로, 해당 파일을 파싱하여 원본 소스에 반영합니다.
 - **스킬 파일 동기화**: 해시(SHA-256) 비교를 통해 추가 파일(`extras`)을 동기화합니다. `exclude` 대상 및 필수 파일(`SKILL.md`)은 삭제되지 않습니다.
 
 ## 6. 예외 처리 전략

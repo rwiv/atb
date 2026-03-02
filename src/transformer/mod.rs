@@ -1,3 +1,4 @@
+pub mod codex;
 pub mod default;
 pub mod gemini;
 
@@ -5,6 +6,7 @@ use crate::core::{BuildTarget, Resource, ResourceData, ResourceType, Transformed
 use anyhow::Result;
 use std::path::PathBuf;
 
+use self::codex::CodexTransformer;
 use self::default::DefaultTransformer;
 use self::gemini::GeminiTransformer;
 
@@ -16,8 +18,19 @@ pub trait Transformer {
     /// 전역 지침(AGENTS.md)을 타겟 규격의 메인 메모리 파일로 변환합니다.
     fn transform_root_prompt(&self, content: &str) -> Result<TransformedFile>;
 
+    /// 변환된 전체 리소스에 대해 추가 파일(예: 레지스트리)을 생성하는 훅.
+    fn post_transform(&self, _resources: &[&Resource]) -> Result<Vec<TransformedFile>> {
+        Ok(vec![])
+    }
+
     /// 타겟 포맷의 파일 내용을 다시 ResourceData로 복원합니다.
-    fn detransform(&self, r_type: ResourceType, file_content: &str) -> Result<ResourceData>;
+    fn detransform(
+        &self,
+        r_type: ResourceType,
+        name: &str,
+        file_content: &str,
+        output_dir: &std::path::Path,
+    ) -> Result<ResourceData>;
 
     /// 리소스의 타입과 이름을 기반으로 타겟 경로를 반환합니다.
     fn get_target_path(&self, r_type: ResourceType, name: &str) -> PathBuf;
@@ -33,6 +46,7 @@ impl TransformerFactory {
             BuildTarget::GeminiCli => Box::new(GeminiTransformer),
             BuildTarget::ClaudeCode => Box::new(DefaultTransformer { target: *target }),
             BuildTarget::OpenCode => Box::new(DefaultTransformer { target: *target }),
+            BuildTarget::Codex => Box::new(CodexTransformer),
         }
     }
 }
@@ -59,7 +73,9 @@ mod tests {
     fn test_transformer_factory_detransform() {
         let gemini = TransformerFactory::create(&BuildTarget::GeminiCli);
         let input = "prompt = \"hello\"\nmodel = \"gpt-4\"";
-        let res = gemini.detransform(ResourceType::Command, input).unwrap();
+        let res = gemini
+            .detransform(ResourceType::Command, "cmd", input, std::path::Path::new(""))
+            .unwrap();
 
         assert_eq!(res.content, "hello");
         assert_eq!(res.metadata["model"], "gpt-4");

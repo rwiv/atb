@@ -1,4 +1,7 @@
-use crate::core::{AGENTS_MD, CLAUDE_MD, DIR_AGENTS, DIR_COMMANDS, DIR_SKILLS, GEMINI_MD, TransformedResource};
+use crate::core::{
+    AGENTS_MD, CLAUDE_MD, DIR_AGENTS, DIR_CODEX, DIR_COMMANDS, DIR_PROMPTS, DIR_SKILLS, GEMINI_MD, TransformedResource,
+};
+use crate::utils::fs::ensure_dir;
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::PathBuf;
@@ -18,7 +21,9 @@ impl Emitter {
     pub fn clean(&self) -> Result<()> {
         let targets = [
             // directories
+            DIR_CODEX,
             DIR_COMMANDS,
+            DIR_PROMPTS,
             DIR_AGENTS,
             DIR_SKILLS,
             // main memory files
@@ -46,7 +51,7 @@ impl Emitter {
             // 1. 변환된 텍스트 파일 쓰기
             for file in &resource.files {
                 let full_path = self.output_path.join(&file.path);
-                crate::utils::fs::ensure_dir(&full_path)?;
+                ensure_dir(&full_path)?;
                 fs::write(&full_path, &file.content)
                     .with_context(|| format!("Failed to write file: {:?}", full_path))?;
             }
@@ -54,7 +59,7 @@ impl Emitter {
             // 2. 추가 파일 복사
             for extra in &resource.extras {
                 let full_target_path = self.output_path.join(&extra.target);
-                crate::utils::fs::ensure_dir(&full_target_path)?;
+                ensure_dir(&full_target_path)?;
                 fs::copy(&extra.source, &full_target_path).with_context(|| {
                     format!(
                         "Failed to copy extra file: {:?} -> {:?}",
@@ -81,6 +86,7 @@ mod tests {
 
         // 더미 파일/폴더 생성
         fs::create_dir(root.join(DIR_COMMANDS))?;
+        fs::create_dir(root.join(DIR_CODEX))?;
         fs::write(root.join(DIR_COMMANDS).join("foo.toml"), "test")?;
         fs::write(root.join(GEMINI_MD), "test")?;
         fs::write(root.join("other.txt"), "keep me")?;
@@ -89,6 +95,7 @@ mod tests {
         emitter.clean()?;
 
         assert!(!root.join(DIR_COMMANDS).exists());
+        assert!(!root.join(DIR_CODEX).exists());
         assert!(!root.join(GEMINI_MD).exists());
         assert!(root.join("other.txt").exists());
 

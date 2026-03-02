@@ -1,3 +1,4 @@
+use crate::core::SKILL_MD;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fmt;
@@ -112,7 +113,7 @@ impl Resource {
     pub fn main_source_path(&self) -> PathBuf {
         match self {
             Resource::Command(d) | Resource::Agent(d) => d.source_path.clone(),
-            Resource::Skill(s) => s.base.source_path.join(crate::core::SKILL_MD),
+            Resource::Skill(s) => s.base.source_path.join(SKILL_MD),
         }
     }
 

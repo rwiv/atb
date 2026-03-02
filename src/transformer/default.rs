@@ -3,6 +3,7 @@ use crate::core::{
     ResourceType, SKILL_MD, TransformedFile,
 };
 use crate::transformer::Transformer;
+use crate::utils::yaml::extract_frontmatter;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -46,6 +47,7 @@ impl Transformer for DefaultTransformer {
             BuildTarget::GeminiCli => GEMINI_MD,
             BuildTarget::ClaudeCode => CLAUDE_MD,
             BuildTarget::OpenCode => AGENTS_MD,
+            BuildTarget::Codex => AGENTS_MD,
         };
 
         Ok(TransformedFile {
@@ -54,11 +56,17 @@ impl Transformer for DefaultTransformer {
         })
     }
 
-    fn detransform(&self, _r_type: ResourceType, file_content: &str) -> Result<ResourceData> {
-        let (metadata, content) = crate::utils::yaml::extract_frontmatter(file_content);
+    fn detransform(
+        &self,
+        _r_type: ResourceType,
+        name: &str,
+        file_content: &str,
+        _output_dir: &std::path::Path,
+    ) -> Result<ResourceData> {
+        let (metadata, content) = extract_frontmatter(file_content);
 
         Ok(ResourceData {
-            name: String::new(),   // detransform 시점에는 알 수 없음
+            name: name.to_string(),
             plugin: String::new(), // detransform 시점에는 알 수 없음
             content,
             metadata,
@@ -181,7 +189,9 @@ model: new-model
 
 # New Content";
 
-        let result = transformer.detransform(ResourceType::Command, input).unwrap();
+        let result = transformer
+            .detransform(ResourceType::Command, "cmd", input, std::path::Path::new(""))
+            .unwrap();
 
         assert_eq!(result.content, "# New Content");
         assert_eq!(result.metadata["description"], "Updated description");

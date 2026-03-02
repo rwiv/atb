@@ -4,6 +4,7 @@ use std::str::FromStr;
 pub const TARGET_GEMINI: &str = "gemini-cli";
 pub const TARGET_CLAUDE: &str = "claude-code";
 pub const TARGET_OPENCODE: &str = "opencode";
+pub const TARGET_CODEX: &str = "codex";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum BuildTarget {
@@ -13,6 +14,8 @@ pub enum BuildTarget {
     ClaudeCode,
     #[serde(rename = "opencode")]
     OpenCode,
+    #[serde(rename = "codex")]
+    Codex,
 }
 
 impl BuildTarget {
@@ -21,6 +24,7 @@ impl BuildTarget {
             BuildTarget::GeminiCli => TARGET_GEMINI,
             BuildTarget::ClaudeCode => TARGET_CLAUDE,
             BuildTarget::OpenCode => TARGET_OPENCODE,
+            BuildTarget::Codex => TARGET_CODEX,
         }
     }
 
@@ -29,7 +33,7 @@ impl BuildTarget {
     }
 
     pub fn all_reserved_keys() -> &'static [&'static str] {
-        &[TARGET_GEMINI, TARGET_CLAUDE, TARGET_OPENCODE]
+        &[TARGET_GEMINI, TARGET_CLAUDE, TARGET_OPENCODE, TARGET_CODEX]
     }
 }
 
@@ -41,6 +45,7 @@ impl FromStr for BuildTarget {
             TARGET_GEMINI => Ok(BuildTarget::GeminiCli),
             TARGET_CLAUDE => Ok(BuildTarget::ClaudeCode),
             TARGET_OPENCODE => Ok(BuildTarget::OpenCode),
+            TARGET_CODEX => Ok(BuildTarget::Codex),
             _ => anyhow::bail!("Unknown build target: {}", s),
         }
     }
@@ -56,6 +61,7 @@ mod tests {
         assert!(keys.contains(&"gemini-cli"));
         assert!(keys.contains(&"claude-code"));
         assert!(keys.contains(&"opencode"));
+        assert!(keys.contains(&"codex"));
     }
 
     #[test]
@@ -63,6 +69,7 @@ mod tests {
         assert_eq!(BuildTarget::from_str("gemini-cli").unwrap(), BuildTarget::GeminiCli);
         assert_eq!(BuildTarget::from_str("claude-code").unwrap(), BuildTarget::ClaudeCode);
         assert_eq!(BuildTarget::from_str("opencode").unwrap(), BuildTarget::OpenCode);
+        assert_eq!(BuildTarget::from_str("codex").unwrap(), BuildTarget::Codex);
         assert!(BuildTarget::from_str("unknown").is_err());
     }
 }

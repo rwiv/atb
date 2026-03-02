@@ -1,5 +1,6 @@
 use crate::core::{
-    BuildTarget, DIR_COMMANDS, EXT_TOML, GEMINI_MD, Resource, ResourceData, ResourceType, TransformedFile,
+    BuildTarget, DIR_AGENTS, DIR_COMMANDS, DIR_SKILLS, EXT_MD, EXT_TOML, GEMINI_MD, Resource, ResourceData,
+    ResourceType, SKILL_MD, TransformedFile,
 };
 use crate::transformer::Transformer;
 use crate::transformer::default::DefaultTransformer;
@@ -30,7 +31,13 @@ impl Transformer for GeminiTransformer {
         })
     }
 
-    fn detransform(&self, r_type: ResourceType, file_content: &str) -> Result<ResourceData> {
+    fn detransform(
+        &self,
+        r_type: ResourceType,
+        name: &str,
+        file_content: &str,
+        output_dir: &std::path::Path,
+    ) -> Result<ResourceData> {
         match r_type {
             ResourceType::Command => {
                 let mut table: toml::Table = toml::from_str(file_content)?;
@@ -43,7 +50,7 @@ impl Transformer for GeminiTransformer {
                 let metadata = serde_json::to_value(table)?;
 
                 Ok(ResourceData {
-                    name: String::new(),
+                    name: name.to_string(),
                     plugin: String::new(),
                     content: prompt.replace("{{args}}", "$ARGUMENTS"),
                     metadata,
@@ -54,7 +61,7 @@ impl Transformer for GeminiTransformer {
                 let default_transformer = DefaultTransformer {
                     target: BuildTarget::GeminiCli,
                 };
-                default_transformer.detransform(r_type, file_content)
+                default_transformer.detransform(r_type, name, file_content, output_dir)
             }
         }
     }
@@ -62,12 +69,8 @@ impl Transformer for GeminiTransformer {
     fn get_target_path(&self, r_type: ResourceType, name: &str) -> PathBuf {
         match r_type {
             ResourceType::Command => PathBuf::from(DIR_COMMANDS).join(format!("{}{}", name, EXT_TOML)),
-            ResourceType::Agent => {
-                PathBuf::from(crate::core::DIR_AGENTS).join(format!("{}{}", name, crate::core::EXT_MD))
-            }
-            ResourceType::Skill => PathBuf::from(crate::core::DIR_SKILLS)
-                .join(name)
-                .join(crate::core::SKILL_MD),
+            ResourceType::Agent => PathBuf::from(DIR_AGENTS).join(format!("{}{}", name, EXT_MD)),
+            ResourceType::Skill => PathBuf::from(DIR_SKILLS).join(name).join(SKILL_MD),
         }
     }
 }
@@ -171,12 +174,7 @@ mod tests {
         });
 
         let result = transformer.transform(&resource).unwrap();
-        assert_eq!(
-            result.path,
-            PathBuf::from(crate::core::DIR_SKILLS)
-                .join("test-skill")
-                .join(crate::core::SKILL_MD)
-        );
+        assert_eq!(result.path, PathBuf::from(DIR_SKILLS).join("test-skill").join(SKILL_MD));
         assert!(!result.content.contains("metadata:"));
         assert!(result.content.contains("type: expert"));
         assert!(result.content.contains("Skill Content"));
@@ -198,7 +196,7 @@ mod tests {
         let result = transformer.transform(&resource).unwrap();
         assert_eq!(
             result.path,
-            PathBuf::from(crate::core::DIR_AGENTS).join(format!("test-agent{}", crate::core::EXT_MD))
+            PathBuf::from(DIR_AGENTS).join(format!("test-agent{}", EXT_MD))
         );
         assert!(!result.content.contains("metadata:"));
         assert!(result.content.contains("model: gemini-1.5-flash"));
@@ -223,7 +221,9 @@ model = "gemini-2.0"
 prompt = "New Prompt {{args}}"
 "#;
 
-        let result = transformer.detransform(ResourceType::Command, input).unwrap();
+        let result = transformer
+            .detransform(ResourceType::Command, "cmd", input, std::path::Path::new(""))
+            .unwrap();
 
         assert_eq!(result.content, "New Prompt $ARGUMENTS");
         assert_eq!(result.metadata["description"], "Updated desc");

@@ -27,7 +27,7 @@
 [Output Workspace]/
 ├── agb.yaml                # 빌드 설정 파일
 ├── GEMINI.md               # 변환된 전역 지침 (타겟에 따라 이름 변경)
-├── commands/               # 변환된 커맨드 파일들
+├── commands/               # 변환된 커맨드 파일들 (Claude, Gemini 등)
 ├── agents/                 # 변환된 에이전트 파일들
 └── skills/                 # 변환된 스킬 폴더들
     └── [skill_name]/
@@ -44,7 +44,7 @@
 | 필드 | 설명 | 비고 |
 | :--- | :--- | :--- |
 | `source` | 소스 리소스 저장소의 경로 | 물결표(`~`) 확장 지원 |
-| `target` | 빌드/동기화 대상 에이전트 | `gemini-cli`, `claude-code`, `opencode` |
+| `target` | 빌드/동기화 대상 에이전트 | `gemini-cli`, `claude-code`, `opencode`, `codex` |
 | `exclude` | 스캔/동기화에서 제외할 패턴 | Glob 패턴 지원 |
 | `resources` | 대상 리소스 명시 | `[플러그인명]:[리소스명]` 형식 |
 

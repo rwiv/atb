@@ -1,5 +1,5 @@
-use crate::app::Config;
-use crate::core::ResourceType;
+use crate::app::{Config, load_config};
+use crate::core::{CONFIG_FILE_NAME, ResourceType};
 use crate::loader;
 use crate::loader::registry::Registry as LoaderRegistry;
 use crate::transformer::Transformer;
@@ -28,7 +28,7 @@ impl AppContext {
         let output_dir = config_path.parent().unwrap_or(Path::new(".")).to_path_buf();
 
         info!("Loading config: {}", config_file);
-        let cfg = crate::app::load_config(config_file)?;
+        let cfg = load_config(config_file)?;
         let source_dir = PathBuf::from(&cfg.source);
 
         if !source_dir.exists() {
@@ -81,7 +81,7 @@ impl AppContext {
         let missing: Vec<_> = target_identifiers.difference(&found_identifiers).collect();
 
         if !missing.is_empty() {
-            let mut msg = String::from("Missing resources specified in agb.yaml:\n");
+            let mut msg = format!("Missing resources specified in {}:\n", CONFIG_FILE_NAME);
             for (r_type, id) in missing {
                 msg.push_str(&format!("  - {}: '{}' (Not found)\n", r_type, id));
             }

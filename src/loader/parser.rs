@@ -4,6 +4,7 @@ use crate::core::{
 };
 use crate::loader::ScannedResource;
 use crate::loader::merger::MetadataMerger;
+use crate::utils::yaml::extract_frontmatter;
 use anyhow::{Context, Result};
 use serde_json::Value;
 use std::fs;
@@ -35,7 +36,7 @@ impl ResourceParser {
         let (fm_metadata, pure_content) = if let Some(ref p) = md_path {
             let raw_content =
                 fs::read_to_string(p).with_context(|| format!("Failed to read markdown content: {:?}", p))?;
-            crate::utils::yaml::extract_frontmatter(&raw_content)
+            extract_frontmatter(&raw_content)
         } else {
             anyhow::bail!(
                 "Markdown file is missing for resource '{}' in plugin '{}' ({})",

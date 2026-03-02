@@ -13,6 +13,7 @@
 - **Claude Code** (`claude-code`)
 - **Gemini CLI** (`gemini-cli`)
 - **OpenCode** (`opencode`)
+- **Codex** (`codex`)
 
 ## 시작하기
 
