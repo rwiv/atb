@@ -171,7 +171,7 @@ impl CodexTransformer {
         // TOML 직렬화
         let content = toml::to_string_pretty(&table)?;
 
-        // 경로 설정: agents/NAME.toml
+        // 경로 설정: agents/[name].toml
         let path = PathBuf::from(DIR_AGENTS).join(format!("{}{}", data.name, EXT_TOML));
 
         Ok(TransformedFile { path, content })
