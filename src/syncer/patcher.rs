@@ -88,7 +88,7 @@ impl MdPatcher {
             let yaml_part = rest[..end_offset].trim();
             // Frontmatter 영역을 유지하고 본문만 교체
             // new_body 앞에 개행 문자가 중복되는 것을 방지하기 위해 trim_start_matches 사용
-            let new_body = new_body.trim_start_matches(|c: char| c == '\r' || c == '\n');
+            let new_body = new_body.trim_start_matches(['\r', '\n']);
             self.raw_content = format!("---\n{}\n---\n\n{}", yaml_part, new_body);
         } else {
             self.raw_content = new_body.to_string();
@@ -110,7 +110,7 @@ impl MdPatcher {
         let rest = &content[3..];
         if let Some(end_offset) = rest.find("---") {
             let pure_content = &rest[end_offset + 3..];
-            pure_content.trim_start_matches(|c: char| c == '\r' || c == '\n')
+            pure_content.trim_start_matches(['\r', '\n'])
         } else {
             content
         }
