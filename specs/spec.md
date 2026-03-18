@@ -38,12 +38,14 @@
 
 ## 4. 타겟별 변환 사양 (Transformation)
 
+
 | 타겟 | 커맨드 변환 | 에이전트/스킬 변환 | 전역 지침 |
 | :--- | :--- | :--- | :--- |
 | **Gemini-cli** | `*.toml` (Prompt 필드 포함) | `*.md` (메타데이터 포함) | `GEMINI.md` |
 | **Claude-code** | `*.md` (Frontmatter 포함) | `*.md` (Frontmatter 포함) | `CLAUDE.md` |
 | **OpenCode** | `*.md` (Frontmatter 포함) | `*.md` (Frontmatter 포함) | `AGENTS.md` |
 | **Codex** | `prompts/*.md` (Frontmatter 포함) | `agents/*.toml` (`developer_instructions` 필드 포함) | `AGENTS.md` |
+
 
 **특이사항**:
 - **Codex 멀티 에이전트**:

@@ -25,6 +25,7 @@
 
 ### 1.3 모듈 구조 (Module Structure)
 
+
 | 모듈 경로 | 설명 | 상세 문서 |
 | :--- | :--- | :--- |
 | `src/main.rs` | CLI 엔트리포인트 (Thin Wrapper) | - |
@@ -35,6 +36,7 @@
 | `src/syncer/` | 타겟-소스 동기화 엔진 및 Diff 로직 | [`README.md`](../src/syncer/README.md) |
 | `src/transformer/` | 타겟별 포맷 변환 및 역변환(Detransform) | [`README.md`](../src/transformer/README.md) |
 | `src/utils/` | 파일 시스템 및 포맷 처리 유틸리티 | [`README.md`](../src/utils/README.md) |
+
 
 ### 1.4 모듈 의존성 그래프 (Dependency Graph)
 

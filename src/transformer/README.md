@@ -18,6 +18,7 @@
 ## 주요 구성 요소
 
 ### 1. `Transformer` Trait
+
 모든 변환기가 구현해야 하는 인터페이스입니다.
 
 ```rust
@@ -33,6 +34,7 @@ pub trait Transformer {
 ```
 
 ### 2. `TransformerFactory`
+
 `core::BuildTarget` 열거형을 기반으로 적절한 `Transformer` 구현체를 동적으로 생성하여 반환합니다.
 
 ## 타겟별 특이사항
