@@ -1,7 +1,7 @@
 pub mod extra;
 pub mod patcher;
 
-use crate::core::Resource;
+use crate::core::{BuildTarget, Resource, ResourceType};
 use crate::syncer::extra::ExtraSyncer;
 use crate::syncer::patcher::MdPatcher;
 use crate::transformer::Transformer;
@@ -12,12 +12,14 @@ use std::fs;
 use std::path::Path;
 
 pub struct Syncer {
+    target: BuildTarget,
     extra: ExtraSyncer,
 }
 
 impl Syncer {
-    pub fn new(exclude_patterns: Vec<Pattern>) -> Self {
+    pub fn new(target: BuildTarget, exclude_patterns: Vec<Pattern>) -> Self {
         Self {
+            target,
             extra: ExtraSyncer::new(exclude_patterns),
         }
     }
@@ -39,7 +41,7 @@ impl Syncer {
             .with_context(|| format!("Failed to read target file: {:?}", target_path))?;
 
         // 역변환 (Detransform)
-        let detransformed = transformer
+        let mut detransformed = transformer
             .detransform(resource.r_type(), resource.name(), &target_content, output_dir)
             .with_context(|| format!("Failed to detransform target file: {:?}", target_path))?;
 
@@ -48,6 +50,23 @@ impl Syncer {
         let source_file_content = fs::read_to_string(&source_path)
             .with_context(|| format!("Failed to read source file: {:?}", source_path))?;
         let current_metadata = resource.metadata();
+
+        // Gemini CLI Agent 동기화 시 tools 필드 제외 로직
+        if self.target == BuildTarget::GeminiCli && resource.r_type() == ResourceType::Agent {
+            let target_tools = detransformed.metadata.get("tools");
+            let source_tools = current_metadata.get("tools");
+
+            if let Some(tools_arr) = target_tools.and_then(|t| t.as_array())
+                && tools_arr.len() == 1
+                && tools_arr[0].as_str() == Some("*")
+                && source_tools.is_none()
+            {
+                // 원본에 tools가 없었고, 타겟이 tools: ["*"]이면 무시(삭제)
+                if let Some(obj) = detransformed.metadata.as_object_mut() {
+                    obj.remove("tools");
+                }
+            }
+        }
 
         let mut patcher = MdPatcher::new(&source_file_content);
         let mut changed = false;

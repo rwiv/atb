@@ -45,9 +45,12 @@
 | **OpenCode** | `*.md` (Frontmatter 포함) | `*.md` (Frontmatter 포함) | `AGENTS.md` |
 | **Codex** | `prompts/*.md` (Frontmatter 포함) | `agents/*.toml` (`developer_instructions` 필드 포함) | `AGENTS.md` |
 
-**특이사항 (Codex 멀티 에이전트)**:
-- Codex 빌드 시 각 Agent는 `.codex/config.toml` 이라는 전역 에이전트 설정 레지스트리 파일에 자동으로 취합되어 등록됩니다.
-- 개별 `agents/*.toml` 파일에는 에이전트 지시문(`developer_instructions`)만 저장되며, 설명(`description`)은 `.codex/config.toml` 내부에 저장됩니다.
+**특이사항**:
+- **Codex 멀티 에이전트**:
+  - Codex 빌드 시 각 Agent는 `.codex/config.toml` 이라는 전역 에이전트 설정 레지스트리 파일에 자동으로 취합되어 등록됩니다.
+  - 개별 `agents/*.toml` 파일에는 에이전트 지시문(`developer_instructions`)만 저장되며, 설명(`description`)은 `.codex/config.toml` 내부에 저장됩니다.
+- **Gemini-cli 에이전트**:
+  - Agent 빌드 시 원본 메타데이터에 `tools` 필드가 누락되어 있는 경우 `tools: ["*"]`가 자동으로 주입됩니다.
 
 ## 5. 동기화 규격 (Sync Specifications)
 
@@ -58,6 +61,8 @@
   - **참고 (Codex)**: Codex Agent의 경우 `description`이 개별 TOML이 아닌 `.codex/config.toml`에 위치하므로, 해당 파일을 파싱하여 원본 소스에 반영합니다.
 - **스킬 파일 동기화**: 해시(SHA-256) 비교를 통해 추가 파일(`extras`)을 동기화합니다. `exclude` 대상 및 필수 파일(`SKILL.md`)은 삭제되지 않습니다.
 - **고정밀 무결성 보존 (High-Fidelity Preservation)**: 타겟의 변경 사항이 없을 경우, 원본 소스 파일의 마지막 개행 문자(Trailing Newline)를 포함한 모든 바이트를 100% 보존하여 `git diff` 노이즈를 방지합니다.
+- **Gemini-cli 에이전트 도구 무시**: 
+  - Gemini CLI의 Agent 동기화 시, 타겟 파일의 `tools` 필드가 `["*"]`이고 원본에 해당 필드가 없었던 경우, `tools` 필드가 삭제된 상태로 원본 소스에 반영됩니다.
 
 ## 6. 예외 처리 전략
 

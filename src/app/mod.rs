@@ -60,7 +60,7 @@ impl App {
             ctx.config.target
         );
 
-        let syncer = Syncer::new(ctx.exclude_patterns.clone());
+        let syncer = Syncer::new(ctx.config.target, ctx.exclude_patterns.clone());
         for res in ctx.registry.all_resources() {
             syncer.sync_resource(res, ctx.transformer.as_ref(), &ctx.output_dir)?;
         }

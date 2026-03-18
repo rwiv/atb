@@ -14,7 +14,19 @@ impl Transformer for GeminiTransformer {
     fn transform(&self, resource: &Resource) -> Result<TransformedFile> {
         match resource {
             Resource::Command(data) => self.transform_command_to_toml(data),
-            Resource::Agent(_) | Resource::Skill(_) => {
+            Resource::Agent(data) => {
+                let mut new_data = data.clone();
+                if new_data.metadata.get("tools").is_none()
+                    && let Some(obj) = new_data.metadata.as_object_mut()
+                {
+                    obj.insert("tools".to_string(), serde_json::json!(["*"]));
+                }
+                let default_transformer = DefaultTransformer {
+                    target: BuildTarget::GeminiCli,
+                };
+                default_transformer.transform(&Resource::Agent(new_data))
+            }
+            Resource::Skill(_) => {
                 let default_transformer = DefaultTransformer {
                     target: BuildTarget::GeminiCli,
                 };
@@ -200,7 +212,27 @@ mod tests {
         );
         assert!(!result.content.contains("metadata:"));
         assert!(result.content.contains("model: gemini-1.5-flash"));
+        assert!(result.content.contains("tools:\n- '*'"));
         assert!(result.content.contains("Agent Content"));
+    }
+
+    #[test]
+    fn test_gemini_agent_transformation_with_existing_tools() {
+        let transformer = GeminiTransformer;
+        let resource = Resource::Agent(ResourceData {
+            name: "test-agent-tools".to_string(),
+            plugin: "test-plugin".to_string(),
+            content: "Agent Content".to_string(),
+            metadata: json!({
+                "model": "gemini-1.5-flash",
+                "tools": ["my-tool"]
+            }),
+            source_path: PathBuf::from("src/test.md"),
+        });
+
+        let result = transformer.transform(&resource).unwrap();
+        assert!(result.content.contains("tools:\n- my-tool"));
+        assert!(!result.content.contains("tools:\n- '*'"));
     }
 
     #[test]
