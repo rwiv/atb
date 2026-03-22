@@ -1,6 +1,6 @@
-# agb (Agent Builder)
+# atb (Agent ToolKit Builder)
 
-`agb`는 여러 AI 코딩 에이전트(Claude Code, Gemini CLI 등)의 프롬프트와 스킬을 단일 소스에서 관리하고, 각 환경의 규격에 맞춰 최적화하여 배포하는 **AI 에이전트 리소스 오케스트레이터**입니다.
+`atb`는 여러 AI 코딩 에이전트(Claude Code, Gemini CLI 등)의 프롬프트와 스킬을 단일 소스에서 관리하고, 각 환경의 규격에 맞춰 최적화하여 배포하는 **AI 에이전트 리소스 오케스트레이터**입니다.
 
 ## 주요 기능
 
@@ -23,12 +23,12 @@
 cargo install --path .
 ```
 
-### 2. 프로젝트 설정 (`agb.yaml`)
+### 2. 프로젝트 설정 (`atb.yaml`)
 
-프로젝트 루트에 `agb.yaml`을 생성하여 베이스 디렉토리와 타겟 에이전트를 지정합니다.
+프로젝트 루트에 `atb.yaml`을 생성하여 베이스 디렉토리와 타겟 에이전트를 지정합니다.
 
 ```yaml
-source: ~/agb-resources      # 리소스 소스 저장소(Base) 경로
+source: ~/atb-resources      # 리소스 소스 저장소(Base) 경로
 target: gemini-cli           # 빌드 타겟 (gemini-cli, claude-code 등)
 exclude:
   - "*.tmp"                  # 제외할 패턴 (선택 사항)
@@ -45,7 +45,7 @@ resources:
 중앙 저장소의 리소스를 현재 프로젝트의 에이전트 규격에 맞춰 생성합니다.
 
 ```bash
-agb build
+atb build
 ```
 
 ### 4. 동기화 (Project → Base)
@@ -53,12 +53,12 @@ agb build
 프로젝트 환경에서 수정된 내용을 원본 소스에 반영합니다.
 
 ```bash
-agb sync
+atb sync
 ```
 
 ## 시스템 구조
 
-`agb`는 중앙 리소스 저장소(Source)와 실제 개발 환경(Project)을 분리하여 관리합니다.
+`atb`는 중앙 리소스 저장소(Source)와 실제 개발 환경(Project)을 분리하여 관리합니다.
 
 ### 1. 중앙 리소스 저장소 (Base)
 
@@ -78,11 +78,11 @@ agb sync
 
 ### 2. 프로젝트 개발 환경 (Project)
 
-`agb build`를 통해 생성되는 결과물 구조입니다.
+`atb build`를 통해 생성되는 결과물 구조입니다.
 
 ```text
 [Project Root]/
-├── agb.yaml                # 프로젝트 빌드 및 동기화 설정
+├── atb.yaml                # 프로젝트 빌드 및 동기화 설정
 ├── GEMINI.md               # 변환된 전역 지침 (타겟에 따라 이름 변경)
 ├── commands/               # 변환된 커맨드들
 ├── agents/                 # 변환된 에이전트들

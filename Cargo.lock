@@ -3,29 +3,6 @@
 version = 4
 
 [[package]]
-name = "agb"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "assert_cmd",
- "clap",
- "env_logger",
- "glob",
- "log",
- "predicates",
- "regex",
- "serde",
- "serde_json",
- "serde_yaml",
- "sha2",
- "shellexpand",
- "tempfile",
- "thiserror 1.0.69",
- "toml",
- "walkdir",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -103,6 +80,29 @@ dependencies = [
  "predicates-core",
  "predicates-tree",
  "wait-timeout",
+]
+
+[[package]]
+name = "atb"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "assert_cmd",
+ "clap",
+ "env_logger",
+ "glob",
+ "log",
+ "predicates",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sha2",
+ "shellexpand",
+ "tempfile",
+ "thiserror 1.0.69",
+ "toml",
+ "walkdir",
 ]
 
 [[package]]

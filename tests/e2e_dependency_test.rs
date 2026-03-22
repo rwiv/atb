@@ -22,10 +22,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 }
 
@@ -36,7 +36,7 @@ fn test_e2e_dependency_missing_skill() {
 
     setup_dependency_fixtures(root);
 
-    // researcher depends on web_search, but web_search is missing in agb.yaml
+    // researcher depends on web_search, but web_search is missing in atb.yaml
     let config = format!(
         r#"
 source: {}
@@ -47,16 +47,16 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
 
     cmd.assert()
         .failure()
         .stderr(predicates::str::contains("Dependency check failed:"))
         .stderr(predicates::str::contains(
-            "agent 'plugin_a:researcher' requires skill 'plugin_b:web_search' but it is missing in agb.yaml",
+            "agent 'plugin_a:researcher' requires skill 'plugin_b:web_search' but it is missing in atb.yaml",
         ));
 }
 
@@ -102,10 +102,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 }
 
@@ -152,13 +152,13 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
-    // Now remove c1 from agb.yaml
+    // Now remove c1 from atb.yaml
     let config_missing = format!(
         r#"
 source: {}
@@ -171,10 +171,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config_missing).unwrap();
+    fs::write(root.join("atb.yaml"), config_missing).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert()
         .failure()
         .stderr(predicates::str::contains("agent 'p2:a1' requires command 'p1:c1'"));

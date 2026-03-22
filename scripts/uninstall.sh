@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# agb uninstallation script
+# atb uninstallation script
 
 set -e
 
@@ -14,7 +14,7 @@ if [ ! -f "Cargo.toml" ]; then
     exit 1
 fi
 
-BINARY_NAME="agb"
+BINARY_NAME="atb"
 INSTALL_DIR="$HOME/.local/bin"
 TARGET_PATH="$INSTALL_DIR/$BINARY_NAME"
 

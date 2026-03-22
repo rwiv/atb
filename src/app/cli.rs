@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "agb")]
-#[command(about = "Agent Builder: Multi-agent workflow resource manager", long_about = None)]
+#[command(name = "atb")]
+#[command(about = "Agent ToolKit Builder: Multi-agent workflow resource manager", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -10,7 +10,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Build the agent resources based on agb.yaml
+    /// Build the agent resources based on atb.yaml
     Build {
         /// Optional path to the config file
         #[arg(short, long)]

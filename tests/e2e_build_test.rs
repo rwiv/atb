@@ -11,7 +11,7 @@ fn test_e2e_build_gemini_cli() {
     // Setup fixtures
     setup_fixtures(root);
 
-    // Create agb.yaml
+    // Create atb.yaml
     let config = format!(
         r#"
 source: {}
@@ -24,11 +24,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
     // Run build
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // Verify outputs
@@ -62,10 +62,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     assert!(root.join("commands/foo.md").exists());
@@ -92,10 +92,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     assert!(root.join("commands/foo.md").exists());

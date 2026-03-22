@@ -1,4 +1,4 @@
-use agb::app::{App, Cli, Commands};
+use atb::app::{App, Cli, Commands};
 use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
@@ -11,8 +11,8 @@ fn test_app_build_integration() {
     // Setup fixtures
     setup_fixtures(root);
 
-    // Create agb.yaml
-    let config_path = root.join("agb.yaml");
+    // Create atb.yaml
+    let config_path = root.join("atb.yaml");
     let config = format!(
         r#"
 source: {}
@@ -51,7 +51,7 @@ fn test_app_sync_integration() {
     setup_fixtures(root);
 
     // Build first to create targets
-    let config_path = root.join("agb.yaml");
+    let config_path = root.join("atb.yaml");
     let config = format!(
         r#"
 source: {}

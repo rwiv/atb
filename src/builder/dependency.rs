@@ -182,7 +182,7 @@ agents:
     #[test]
     fn test_dependency_checker_full_success() {
         let temp = tempfile::tempdir().unwrap();
-        let source_dir = temp.path().join("agb_test_source");
+        let source_dir = temp.path().join("atb_test_source");
         let p1_dir = source_dir.join("plugins").join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 
@@ -209,7 +209,7 @@ agents:
     #[test]
     fn test_dependency_checker_missing_dep() {
         let temp = tempfile::tempdir().unwrap();
-        let source_dir = temp.path().join("agb_test_source_missing");
+        let source_dir = temp.path().join("atb_test_source_missing");
         let p1_dir = source_dir.join("plugins").join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 
@@ -232,13 +232,13 @@ agents:
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("Dependency check failed:"));
-        assert!(err_msg.contains("agent 'p1:a1' requires skill 'p2:s1' but it is missing in agb.yaml"));
+        assert!(err_msg.contains("agent 'p1:a1' requires skill 'p2:s1' but it is missing in atb.yaml"));
     }
 
     #[test]
     fn test_dependency_checker_invalid_id() {
         let temp = tempfile::tempdir().unwrap();
-        let source_dir = temp.path().join("agb_test_source_invalid");
+        let source_dir = temp.path().join("atb_test_source_invalid");
         let p1_dir = source_dir.join("plugins").join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 

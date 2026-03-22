@@ -1,6 +1,6 @@
-use agb::core::{BuildTarget, Resource};
-use agb::loader::ResourceLoader;
 use anyhow::Result;
+use atb::core::{BuildTarget, Resource};
+use atb::loader::ResourceLoader;
 use glob::Pattern;
 use std::fs;
 use tempfile::tempdir;

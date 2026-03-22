@@ -1,6 +1,6 @@
 # Transformer Module
 
-`transformer` 모듈은 `agb`의 내부 리소스 모델(`core::Resource`)을 각 에이전트(Gemini, Claude, OpenCode, Codex)의 규격에 맞는 물리적 파일 형식으로 변환하는 역할을 담당합니다.
+`transformer` 모듈은 `atb`의 내부 리소스 모델(`core::Resource`)을 각 에이전트(Gemini, Claude, OpenCode, Codex)의 규격에 맞는 물리적 파일 형식으로 변환하는 역할을 담당합니다.
 
 ## 핵심 역할
 

@@ -28,7 +28,7 @@ gemini-cli:
 
     fs::write(source_path.join("AGENTS.md"), "# Global Instructions").unwrap();
 
-    // 2. Setup agent workspace with agb.yaml
+    // 2. Setup agent workspace with atb.yaml
     let config_content = format!(
         r#"
 source: {}
@@ -39,11 +39,11 @@ resources:
 "#,
         source_path.display()
     );
-    let config_file = workspace_path.join("agb.yaml");
+    let config_file = workspace_path.join("atb.yaml");
     fs::write(&config_file, config_content).unwrap();
 
     // 3. Run build from workspace
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
     cmd.arg("build").arg("--config").arg(&config_file);
     cmd.assert().success();
 
@@ -70,16 +70,16 @@ fn test_e2e_path_split_invalid_source() {
     let workspace_path = agent_workspace.path();
 
     let config_content = r#"
-source: /non/existent/path/for/agb/test
+source: /non/existent/path/for/atb/test
 target: gemini-cli
 resources:
   commands:
     - p1:hello
 "#;
-    let config_file = workspace_path.join("agb.yaml");
+    let config_file = workspace_path.join("atb.yaml");
     fs::write(&config_file, config_content).unwrap();
 
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
     cmd.arg("build").arg("--config").arg(&config_file);
 
     cmd.assert()

@@ -1,5 +1,5 @@
-use agb::app::AppContext;
-use agb::syncer::Syncer;
+use atb::app::AppContext;
+use atb::syncer::Syncer;
 use std::fs;
 use tempfile::tempdir;
 
@@ -24,10 +24,10 @@ Content",
     )
     .unwrap();
 
-    // 2. agb.yaml 설정
-    let agb_yaml = project_dir.path().join("agb.yaml");
+    // 2. atb.yaml 설정
+    let atb_yaml = project_dir.path().join("atb.yaml");
     fs::write(
-        &agb_yaml,
+        &atb_yaml,
         format!(
             "source: {}
 target: gemini-cli
@@ -56,7 +56,7 @@ Content",
     .unwrap();
 
     // 4. Sync 실행
-    let ctx = AppContext::init(agb_yaml.to_str().unwrap()).unwrap();
+    let ctx = AppContext::init(atb_yaml.to_str().unwrap()).unwrap();
     let syncer = Syncer::new(ctx.exclude_patterns.clone());
 
     let resource = ctx.registry.all_resources().into_iter().next().unwrap();

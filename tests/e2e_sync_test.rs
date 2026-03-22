@@ -22,11 +22,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
     // 1. Initial Build
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 2. Modify target files
@@ -45,8 +45,8 @@ resources:
     fs::write(&new_file_path, "Added File Content").unwrap();
 
     // 3. Run Sync
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("sync").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source
@@ -79,11 +79,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
     // 1. Initial Build
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 2. Modify target files
@@ -94,8 +94,8 @@ resources:
     fs::write(&cmd_md_path, md_content).unwrap();
 
     // 3. Run Sync
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("sync").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source
@@ -124,11 +124,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("agb.yaml"), config).unwrap();
+    fs::write(root.join("atb.yaml"), config).unwrap();
 
     // 1. Initial Build
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("build").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 2. Add excluded file to target
@@ -136,8 +136,8 @@ resources:
     fs::write(&tmp_file_path, "Should be ignored").unwrap();
 
     // 3. Run Sync
-    let mut cmd = Command::new(assert_cmd::cargo_bin!("agb"));
-    cmd.arg("sync").arg("--config").arg(root.join("agb.yaml"));
+    let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
+    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source (should NOT contain the .tmp file)

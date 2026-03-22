@@ -3,7 +3,7 @@ pub const AGENTS_MD: &str = "AGENTS.md";
 pub const SKILL_MD: &str = "SKILL.md";
 pub const GEMINI_MD: &str = "GEMINI.md";
 pub const CLAUDE_MD: &str = "CLAUDE.md";
-pub const CONFIG_FILE_NAME: &str = "agb.yaml";
+pub const CONFIG_FILE_NAME: &str = "atb.yaml";
 pub const DEPS_FILE_NAME: &str = "deps.yaml";
 pub const CODEX_CONFIG_FILE_NAME: &str = "config.toml";
 

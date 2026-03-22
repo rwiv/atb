@@ -2,13 +2,13 @@
 
 ## 1. 시스템 아키텍처 (Architecture)
 
-`agb`는 **파이프라인 아키텍처**를 따르며, `builder` 모듈이 전체 공정을 오케스트레이션합니다.
+`atb`는 **파이프라인 아키텍처**를 따르며, `builder` 모듈이 전체 공정을 오케스트레이션합니다.
 
 ### 1.1 빌드 파이프라인 (Build Pipeline)
 
-`agb`의 빌드 과정은 순차적인 파이프라인을 거쳐 수행됩니다.
+`atb`의 빌드 과정은 순차적인 파이프라인을 거쳐 수행됩니다.
 
-1. **설정 로드 (Load Config)**: `agb.yaml`을 읽어 빌드 컨텍스트(소스 경로, 타겟 에이전트 등)를 생성합니다. (`builder/config.rs`)
+1. **설정 로드 (Load Config)**: `atb.yaml`을 읽어 빌드 컨텍스트(소스 경로, 타겟 에이전트 등)를 생성합니다. (`builder/config.rs`)
 2. **리소스 스캔 및 로드 (Scan & Load)**: 소스 경로 내의 플러그인 구조를 분석하여 파일들을 수집하고, 이를 `core::Resource` 객체로 로드합니다. (`loader` 모듈)
 3. **검증 및 등록 (Validate & Register)**: 로드된 리소스들의 이름 충돌 여부를 확인하고, 빌드 대상 리소스를 `loader::registry::Registry`에 등록합니다. 타입과 이름을 모두 고려하여 중복을 체크합니다.
 4. **의존성 검증 (Dependency Check)**: 각 리소스의 `deps.yaml`을 확인하여 모든 의존 리소스가 `Registry`에 존재하는지 확인합니다. (`builder::dependency::DependencyChecker`)
@@ -17,7 +17,7 @@
 
 ### 1.2 동기화 파이프라인 (Sync Pipeline)
 
-`agb sync` 과정은 타겟의 변경사항을 소스로 역전파합니다.
+`atb sync` 과정은 타겟의 변경사항을 소스로 역전파합니다.
 
 1. Registry 로딩: Loader를 사용해 소스 기준의 Registry를 구축합니다.
 2. 타겟 리소스 역변환 (De-transformation): 타겟 결과물을 읽어 내부 모델로 복원합니다. (`Transformer::detransform`)
@@ -86,7 +86,7 @@ graph TD
 
 ### 2.3 리소스 충돌 정책 (Conflict Policy)
 
-`agb`는 빌드 결과물의 예측 가능성을 보장하기 위해 엄격한 이름 충돌 방지 정책을 가집니다.
+`atb`는 빌드 결과물의 예측 가능성을 보장하기 위해 엄격한 이름 충돌 방지 정책을 가집니다.
 
 - **동일 타입 충돌**: 동일한 리소스 타입(예: Command) 내에서 이름이 중복되는 경우, 소속된 플러그인이 다르더라도 빌드를 즉시 중단합니다.
 - **교차 타입 허용**: 서로 다른 리소스 타입(예: Command 'foo'와 Skill 'foo')은 동일한 이름을 가질 수 있습니다. 이는 에이전트별로 리소스 종류에 따라 저장 경로가 구분되기 때문입니다.
