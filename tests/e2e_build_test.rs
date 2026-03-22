@@ -11,7 +11,7 @@ fn test_e2e_build_gemini_cli() {
     // Setup fixtures
     setup_fixtures(root);
 
-    // Create atb.yaml
+    // Create toolkit.yaml
     let config = format!(
         r#"
 source: {}
@@ -24,11 +24,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // Verify outputs
@@ -62,10 +62,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     assert!(root.join("commands/foo.md").exists());
@@ -92,10 +92,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     assert!(root.join("commands/foo.md").exists());
@@ -110,9 +110,8 @@ resources:
 }
 
 fn setup_fixtures(root: &Path) {
-    let plugins = root.join("plugins");
-    let plugin_a_cmds = plugins.join("plugin_a/commands");
-    let plugin_c_skills = plugins.join("plugin_c/skills/python_expert");
+    let plugin_a_cmds = root.join("plugin_a/commands");
+    let plugin_c_skills = root.join("plugin_c/skills/python_expert");
 
     fs::create_dir_all(&plugin_a_cmds).unwrap();
     fs::create_dir_all(&plugin_c_skills).unwrap();

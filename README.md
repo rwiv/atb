@@ -23,9 +23,9 @@
 cargo install --path .
 ```
 
-### 2. 프로젝트 설정 (`atb.yaml`)
+### 2. 프로젝트 설정 (`toolkit.yaml`)
 
-프로젝트 루트에 `atb.yaml`을 생성하여 베이스 디렉토리와 타겟 에이전트를 지정합니다.
+프로젝트 루트에 `toolkit.yaml`을 생성하여 베이스 디렉토리와 타겟 에이전트를 지정합니다.
 
 ```yaml
 source: ~/atb-resources      # 리소스 소스 저장소(Base) 경로
@@ -67,13 +67,12 @@ atb sync
 ```text
 [Base Directory]/
 ├── AGENTS.md               # 공용 시스템 지침
-├── map.yaml                # 타겟별 메타데이터 매핑 규칙 (선택)
-└── plugins/                # 플러그인 단위 리소스 모음
-    └── my_plugin/
-        ├── deps.yaml       # 리소스 간 의존성 정의 (선택)
-        ├── commands/       # [name].md (+ 선택적 .yaml)
-        ├── agents/         # [name].md (+ 선택적 .yaml)
-        └── skills/         # [name]/SKILL.md (+ 추가 파일들)
+├── overrides.yaml          # 타겟별 메타데이터 매핑 규칙 (선택)
+└── my_plugin/              # 플러그인 단위 리소스 모음
+    ├── requirements.yaml   # 리소스 간 의존성 정의 (선택)
+    ├── commands/           # [name].md (+ 선택적 .yaml)
+    ├── agents/             # [name].md (+ 선택적 .yaml)
+    └── skills/             # [name]/SKILL.md (+ 추가 파일들)
 ```
 
 ### 2. 프로젝트 개발 환경 (Project)
@@ -82,7 +81,7 @@ atb sync
 
 ```text
 [Project Root]/
-├── atb.yaml                # 프로젝트 빌드 및 동기화 설정
+├── toolkit.yaml                # 프로젝트 빌드 및 동기화 설정
 ├── GEMINI.md               # 변환된 전역 지침 (타겟에 따라 이름 변경)
 ├── commands/               # 변환된 커맨드들
 ├── agents/                 # 변환된 에이전트들

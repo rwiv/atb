@@ -9,7 +9,7 @@
 
 ## 상세 지침 (Actionable Instructions)
 1. `tests/fixtures/sync/` 디렉터리에 샘플 소스(`source`)와 타겟(`dest`) 구조를 구축합니다.
-2. `source` 디렉터리에 `agb.yaml`을 포함한 `plugins`를 구성합니다.
+2. `source` 디렉터리에 `toolkit.yaml`을 포함한 `plugins`를 구성합니다.
 3. `dest` 디렉터리에 `build`된 리소스를 수동으로(또는 `build` 명령으로) 생성합니다.
 4. `dest`의 파일들을 임의로 수정(프롬프트, 설명 변경, 스킬 내 파일 추가/삭제)합니다.
 5. `agb sync` 명령을 실행하여 `source`의 파일들이 예상대로 업데이트되었는지 검증합니다.

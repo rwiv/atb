@@ -9,7 +9,7 @@ fn test_sync_succeeds_on_multiline_description() {
     let project_dir = tempdir().unwrap();
 
     // 1. 소스에 멀티라인 description을 가진 에이전트 생성
-    let agent_dir = source_dir.path().join("plugins/my_plugin/agents");
+    let agent_dir = source_dir.path().join("my_plugin/agents");
     fs::create_dir_all(&agent_dir).unwrap();
     let source_md = agent_dir.join("researcher.md");
     fs::write(
@@ -24,8 +24,8 @@ Content",
     )
     .unwrap();
 
-    // 2. atb.yaml 설정
-    let atb_yaml = project_dir.path().join("atb.yaml");
+    // 2. toolkit.yaml 설정
+    let atb_yaml = project_dir.path().join("toolkit.yaml");
     fs::write(
         &atb_yaml,
         format!(

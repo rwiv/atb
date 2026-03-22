@@ -11,7 +11,7 @@ fn test_e2e_path_split_build() {
     let workspace_path = agent_workspace.path();
 
     // 1. Setup source repository
-    let plugins_dir = source_path.join("plugins");
+    let plugins_dir = source_path;
     let plugin_a_cmds = plugins_dir.join("plugin_a/commands");
     fs::create_dir_all(&plugin_a_cmds).unwrap();
 
@@ -28,7 +28,7 @@ gemini-cli:
 
     fs::write(source_path.join("AGENTS.md"), "# Global Instructions").unwrap();
 
-    // 2. Setup agent workspace with atb.yaml
+    // 2. Setup agent workspace with toolkit.yaml
     let config_content = format!(
         r#"
 source: {}
@@ -39,7 +39,7 @@ resources:
 "#,
         source_path.display()
     );
-    let config_file = workspace_path.join("atb.yaml");
+    let config_file = workspace_path.join("toolkit.yaml");
     fs::write(&config_file, config_content).unwrap();
 
     // 3. Run build from workspace
@@ -76,7 +76,7 @@ resources:
   commands:
     - p1:hello
 "#;
-    let config_file = workspace_path.join("atb.yaml");
+    let config_file = workspace_path.join("toolkit.yaml");
     fs::write(&config_file, config_content).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));

@@ -1,7 +1,7 @@
-# TASK 2-1: Define `deps.yaml` Parsing Model
+# TASK 2-1: Define `requirements.yaml` Parsing Model
 
 ## 개요 (Description)
-플러그인별 의존성 설정 파일인 `deps.yaml`을 파싱하기 위한 데이터 모델을 정의합니다.
+플러그인별 의존성 설정 파일인 `requirements.yaml`을 파싱하기 위한 데이터 모델을 정의합니다.
 
 ## 수정 파일 (Files to Modify)
 - `src/builder/dependency.rs` (신규 생성)

@@ -22,11 +22,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // Verify build structure for Codex
@@ -62,27 +62,26 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source
     // Verify Command Source
-    let cmd_source_path = root.join("plugins/plugin_a/commands/foo.md");
+    let cmd_source_path = root.join("plugin_a/commands/foo.md");
     let cmd_source_content = fs::read_to_string(cmd_source_path).unwrap();
     assert!(cmd_source_content.contains("description: Codex Command Updated"));
     assert!(cmd_source_content.contains("# Codex Command Content Updated"));
 
     // Verify Agent Source
-    let agent_source_path = root.join("plugins/plugin_b/agents/bar.md");
+    let agent_source_path = root.join("plugin_b/agents/bar.md");
     let agent_source_content = fs::read_to_string(agent_source_path).unwrap();
     assert!(agent_source_content.contains("description: Codex Agent Updated"));
     assert!(agent_source_content.contains("# Codex Agent Content Updated"));
 }
 
 fn setup_fixtures(root: &Path) {
-    let plugins = root.join("plugins");
-    let plugin_a_cmds = plugins.join("plugin_a/commands");
-    let plugin_b_agents = plugins.join("plugin_b/agents");
+    let plugin_a_cmds = root.join("plugin_a/commands");
+    let plugin_b_agents = root.join("plugin_b/agents");
 
     fs::create_dir_all(&plugin_a_cmds).unwrap();
     fs::create_dir_all(&plugin_b_agents).unwrap();

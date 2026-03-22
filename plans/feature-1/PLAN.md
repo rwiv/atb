@@ -5,8 +5,8 @@
 ## Phase 1: 기반 설정 및 CLI 환경 구축 (CLI & Config)
 *   **Task 1.1: 프로젝트 초기화 및 의존성 설정**
     *   *성공 기준:* `Cargo.toml`에 필요한 라이브러리(`clap`, `serde`, `anyhow` 등)가 설정되고 빌드가 성공한다.
-*   **Task 1.2: `agb.yaml` 파싱 및 설정 모델링**
-    *   *성공 기준:* `tests/fixtures/agb.yaml` 파일을 읽어 Rust 데이터 구조체로 정확히 역직렬화한다.
+*   **Task 1.2: `toolkit.yaml` 파싱 및 설정 모델링**
+    *   *성공 기준:* `tests/fixtures/toolkit.yaml` 파일을 읽어 Rust 데이터 구조체로 정확히 역직렬화한다.
 *   **Task 1.3: CLI 명령 체계 구축**
     *   *성공 기준:* `agb build` 명령어를 실행했을 때 설정 파일을 로드하는 기본 흐름이 작동한다.
 

@@ -19,7 +19,7 @@
 필요한 라이브러리 목록:
 - `clap`: CLI 명령어 및 인자 파싱 (v4, `derive` 기능 포함)
 - `serde`: 직렬화/역직렬화 프레임워크
-- `serde_yaml`: `agb.yaml` 파싱용
+- `serde_yaml`: `toolkit.yaml` 파싱용
 - `serde_json`: 리소스 메타데이터(`*.json`) 파싱용
 - `toml`: Gemini-cli용 결과물 생성용
 - `anyhow`: 애플리케이션 레벨 에러 핸들링

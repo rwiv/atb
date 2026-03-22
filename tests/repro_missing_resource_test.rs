@@ -11,8 +11,8 @@ fn test_missing_resource_should_fail_init() {
     // Setup basic fixtures
     setup_minimal_fixtures(root);
 
-    // Create atb.yaml with a non-existent resource
-    let config_path = root.join("atb.yaml");
+    // Create toolkit.yaml with a non-existent resource
+    let config_path = root.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -33,7 +33,7 @@ resources:
         Ok(_) => panic!("AppContext::init should fail when resources are missing"),
         Err(e) => {
             let err_msg = e.to_string();
-            assert!(err_msg.contains("Missing resources specified in atb.yaml"));
+            assert!(err_msg.contains("Missing resources specified in toolkit.yaml"));
             assert!(err_msg.contains("command: 'plugin_a:non_existent_cmd' (Not found)"));
         }
     }
@@ -45,14 +45,14 @@ fn test_resource_type_mismatch_should_fail_init() {
     let root = temp_dir.path();
 
     // Setup: Create a Skill named 'my_res'
-    let plugins = root.join("plugins");
-    let skill_dir = plugins.join("plugin_a/skills/my_res");
+
+    let skill_dir = root.join("plugin_a/skills/my_res");
     fs::create_dir_all(&skill_dir).unwrap();
     fs::write(skill_dir.join("SKILL.md"), "Skill Content").unwrap();
     fs::write(root.join("AGENTS.md"), "# Global Instructions").unwrap();
 
-    // Create atb.yaml requesting 'plugin_a:my_res' as a COMMAND
-    let config_path = root.join("atb.yaml");
+    // Create toolkit.yaml requesting 'plugin_a:my_res' as a COMMAND
+    let config_path = root.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -71,15 +71,14 @@ resources:
         Ok(_) => panic!("AppContext::init should fail due to type mismatch"),
         Err(e) => {
             let err_msg = e.to_string();
-            assert!(err_msg.contains("Missing resources specified in atb.yaml"));
+            assert!(err_msg.contains("Missing resources specified in toolkit.yaml"));
             assert!(err_msg.contains("command: 'plugin_a:my_res' (Not found)"));
         }
     }
 }
 
 fn setup_minimal_fixtures(root: &Path) {
-    let plugins = root.join("plugins");
-    let plugin_a_cmds = plugins.join("plugin_a/commands");
+    let plugin_a_cmds = root.join("plugin_a/commands");
 
     fs::create_dir_all(&plugin_a_cmds).unwrap();
 

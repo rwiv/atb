@@ -9,7 +9,7 @@
 
 ## 상세 지침 (Actionable Instructions)
 1. **`specs/SPEC.md`**:
-    - 리소스 작성 규격 섹션에 `deps.yaml` 파일의 위치와 포맷(YAML 구조) 설명을 추가합니다.
+    - 리소스 작성 규격 섹션에 `requirements.yaml` 파일의 위치와 포맷(YAML 구조) 설명을 추가합니다.
     - 빌드 프로세스 규격에 의존성 검증 단계와 실패 시 동작(Fail-fast)을 명시합니다.
 2. **`specs/DESIGN.md`**:
     - 빌드 파이프라인(Build Pipeline) 다이어그램에 의존성 검사(Dependency Check) 단계를 추가합니다.

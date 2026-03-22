@@ -22,11 +22,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 2. Modify target files
@@ -46,19 +46,19 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source
-    let source_md_path = root.join("plugins/plugin_a/commands/foo.md");
+    let source_md_path = root.join("plugin_a/commands/foo.md");
     let source_md_content = fs::read_to_string(source_md_path).unwrap();
     assert!(source_md_content.contains("description: Updated description"));
     assert!(source_md_content.contains("# Updated Command Content"));
 
-    let source_extra_path = root.join("plugins/plugin_c/skills/python_expert/extra.txt");
+    let source_extra_path = root.join("plugin_c/skills/python_expert/extra.txt");
     assert_eq!(fs::read_to_string(source_extra_path).unwrap(), "New Extra Content");
 
-    let source_new_path = root.join("plugins/plugin_c/skills/python_expert/new.txt");
+    let source_new_path = root.join("plugin_c/skills/python_expert/new.txt");
     assert_eq!(fs::read_to_string(source_new_path).unwrap(), "Added File Content");
 }
 
@@ -79,11 +79,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 2. Modify target files
@@ -95,11 +95,11 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source
-    let source_md_path = root.join("plugins/plugin_a/commands/foo.md");
+    let source_md_path = root.join("plugin_a/commands/foo.md");
     let source_md_content = fs::read_to_string(source_md_path).unwrap();
     assert!(source_md_content.contains("description: Claude Updated"));
     assert!(source_md_content.contains("# Claude Content Updated"));
@@ -124,11 +124,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 2. Add excluded file to target
@@ -137,18 +137,17 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source (should NOT contain the .tmp file)
-    let source_tmp_path = root.join("plugins/plugin_c/skills/python_expert/test.tmp");
+    let source_tmp_path = root.join("plugin_c/skills/python_expert/test.tmp");
     assert!(!source_tmp_path.exists());
 }
 
 fn setup_fixtures(root: &Path) {
-    let plugins = root.join("plugins");
-    let plugin_a_cmds = plugins.join("plugin_a/commands");
-    let plugin_c_skills = plugins.join("plugin_c/skills/python_expert");
+    let plugin_a_cmds = root.join("plugin_a/commands");
+    let plugin_c_skills = root.join("plugin_c/skills/python_expert");
 
     fs::create_dir_all(&plugin_a_cmds).unwrap();
     fs::create_dir_all(&plugin_c_skills).unwrap();

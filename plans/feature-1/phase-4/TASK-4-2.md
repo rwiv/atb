@@ -19,7 +19,7 @@
 
 각 모듈을 순차적으로 호출하는 통합 로직을 `main.rs` 또는 전용 모듈에 작성하세요.
 
-1. **Config Load:** `agb.yaml`을 읽어 타겟 에이전트와 리소스 목록을 확보합니다.
+1. **Config Load:** `toolkit.yaml`을 읽어 타겟 에이전트와 리소스 목록을 확보합니다.
 2. **Resource Load:** `Loader`를 통해 플러그인에서 대상 리소스(Markdown, JSON)를 메모리로 로드합니다.
 3. **Registration:** `Registry`에 리소스를 등록하고 이름 충돌을 검증합니다.
 4. **Transformation:** 선택된 타겟(예: Gemini)에 맞는 `Transformer`를 생성하여 리소스를 변환합니다.

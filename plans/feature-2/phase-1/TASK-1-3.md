@@ -18,11 +18,11 @@
 `tests/fixtures/split_env/` 아래에 다음과 같이 구조를 설계합니다 (테스트 코드 내에서 임시 디렉터리로 생성 권장).
 
 - `source_repo/`: `plugins/`, `AGENTS.md` 포함
-- `agent_workspace/`: `agb.yaml` 포함 (`source` 필드는 `source_repo/`의 절대 경로를 가리킴)
+- `agent_workspace/`: `toolkit.yaml` 포함 (`source` 필드는 `source_repo/`의 절대 경로를 가리킴)
 
 ### Step 2: 통합 테스트 코드 작성 (`tests/e2e_path_split_test.rs`)
 
-`agb build --config [workspace]/agb.yaml` 명령을 시뮬레이션하는 테스트를 작성합니다.
+`agb build --config [workspace]/toolkit.yaml` 명령을 시뮬레이션하는 테스트를 작성합니다.
 
 - **준비**: 임시 디렉터리 두 곳을 생성하고 소스 리소스와 설정 파일을 배치합니다.
 - **실행**: `agb` 바이너리를 실행하거나 내부 함수를 호출하여 빌드를 수행합니다.

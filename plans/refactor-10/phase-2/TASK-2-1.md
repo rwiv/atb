@@ -17,8 +17,8 @@ impl App {
     /// App의 실행 진입점으로, CLI 입력을 받아 명령어 분기를 수행합니다.
     pub fn run(&self, cli: Cli) -> anyhow::Result<()> {
         let config_file = match &cli.command {
-            Commands::Build { config } => config.as_deref().unwrap_or("agb.yaml"),
-            Commands::Sync { config } => config.as_deref().unwrap_or("agb.yaml"),
+            Commands::Build { config } => config.as_deref().unwrap_or("toolkit.yaml"),
+            Commands::Sync { config } => config.as_deref().unwrap_or("toolkit.yaml"),
         };
 
         let ctx = AppContext::init(config_file)?;

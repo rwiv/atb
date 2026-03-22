@@ -14,7 +14,7 @@
     - 병합 시 제약 사항(필드명 검증 등) 처리.
 
 ### 2.2. 데이터 모델 확장 (`src/core/model.rs`)
-- **`MetadataMap`**: 소스 루트의 `map.yaml` 구조를 표현하는 데이터 모델을 추가합니다.
+- **`MetadataMap`**: 소스 루트의 `overrides.yaml` 구조를 표현하는 데이터 모델을 추가합니다.
 - **구조 (Conceptual)**:
   ```rust
   pub struct MetadataMap {
@@ -24,7 +24,7 @@
   ```
 
 ### 2.3. 리소스 로더 및 파서 리팩터링
-- **`ResourceLoader`**: 소스 루트에서 `map.yaml` 파일 존재 여부를 확인하고 로드하여 컨텍스트에 유지합니다.
+- **`ResourceLoader`**: 소스 루트에서 `overrides.yaml` 파일 존재 여부를 확인하고 로드하여 컨텍스트에 유지합니다.
 - **`ResourceParser`**: 직접 병합 로직을 수행하는 대신 `MetadataMerger` 인스턴스를 사용하여 최종 메타데이터를 획득합니다.
 
 ## 3. 메타데이터 매핑 및 병합 규격
@@ -40,7 +40,7 @@
 최종 메타데이터 값은 다음 우선순위에 따라 결정됩니다 (높은 번호가 최종 우선순위).
 
 1.  **Markdown Frontmatter (Base)**: 원본 소스 파일의 기본 설정.
-2.  **Metadata Map**: `map.yaml`에 정의된 매핑에 따른 변환 값.
+2.  **Metadata Map**: `overrides.yaml`에 정의된 매핑에 따른 변환 값.
 3.  **외부 메타데이터 파일 ([name].yaml)**: 타겟 전용 섹션(`gemini-cli` 등)의 명시적 오버라이트.
 
 ## 4. 데이터 흐름 (Data Flow)
@@ -48,7 +48,7 @@
 ```mermaid
 graph TD
     FM[Frontmatter Data] --> Merger
-    MapFile[map.yaml] --> Loader[ResourceLoader]
+    MapFile[overrides.yaml] --> Loader[ResourceLoader]
     Loader --> MapObj[MetadataMap]
     MapObj --> Merger[MetadataMerger]
     ExtYAML[External YAML Data] --> Merger
@@ -64,7 +64,7 @@ graph TD
 ## 5. 상세 구현 가이드
 
 ### 5.1. Metadata Map 파싱
-- 파일 위치: `[Source Root]/map.yaml`
+- 파일 위치: `[Source Root]/overrides.yaml`
 - 파싱 시 에러 처리: 파일이 없으면 매핑 단계 건너뜀. 형식이 잘못되면 빌드 에러 발생.
 
 ### 5.2. MetadataMerger 인터페이스
@@ -104,7 +104,7 @@ impl<'a> MetadataMerger<'a> {
 
 구현 에이전트의 이해를 돕기 위한 구체적인 매핑 시나리오입니다.
 
-### 6.1. `map.yaml` 설정 (Source Root)
+### 6.1. `overrides.yaml` 설정 (Source Root)
 ```yaml
 model:
   sonnet:
@@ -133,7 +133,7 @@ description: 전문 연구원 에이전트입니다.
 #### 빌드 타겟: `gemini-cli`
 - **프로세스**: 
   1. `model` 필드 값이 `sonnet`임을 확인.
-  2. `map.yaml`에서 `model` -> `sonnet` -> `gemini-cli` 경로의 값인 `gemini-3.0-flash`를 추출.
+  2. `overrides.yaml`에서 `model` -> `sonnet` -> `gemini-cli` 경로의 값인 `gemini-3.0-flash`를 추출.
   3. `description` 필드는 제약 조건에 따라 매핑을 수행하지 않음.
 - **최종 메타데이터**:
   ```json
@@ -157,5 +157,5 @@ description: 전문 연구원 에이전트입니다.
   ```
 
 #### 매핑 실패 케이스 (Fallback)
-- 만약 원본의 `model` 값이 `haiku`인데 `map.yaml`에 `haiku` 정의가 없다면, 원본 값 `haiku`를 그대로 유지합니다.
-- 만약 `map.yaml`에 `sonnet` 정의는 있지만 `opencode` 타겟에 대한 값이 누락되었다면, 원본 값 `sonnet`을 유지합니다.
+- 만약 원본의 `model` 값이 `haiku`인데 `overrides.yaml`에 `haiku` 정의가 없다면, 원본 값 `haiku`를 그대로 유지합니다.
+- 만약 `overrides.yaml`에 `sonnet` 정의는 있지만 `opencode` 타겟에 대한 값이 누락되었다면, 원본 값 `sonnet`을 유지합니다.

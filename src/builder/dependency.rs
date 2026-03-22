@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-/// deps.yaml 파싱을 위한 데이터 모델
+/// requirements.yaml 파싱을 위한 데이터 모델
 #[derive(Debug, Deserialize, Clone, Default)]
 pub struct DependencyConfig {
     #[serde(flatten)]
@@ -18,7 +18,7 @@ pub struct DependencyConfig {
 /// 리소스 간의 의존성을 검증하는 컴포넌트
 #[derive(Default)]
 pub struct DependencyChecker {
-    /// 플러그인별 deps.yaml 로드 결과 캐시 (None은 파일이 없음을 의미)
+    /// 플러그인별 requirements.yaml 로드 결과 캐시 (None은 파일이 없음을 의미)
     cache: std::cell::RefCell<HashMap<String, Option<DependencyConfig>>>,
 }
 
@@ -74,7 +74,7 @@ impl DependencyChecker {
                 Some(t) => t,
                 None => {
                     errors.push(format!(
-                        "Unknown resource type '{}' in deps.yaml for {} '{}'",
+                        "Unknown resource type '{}' in requirements.yaml for {} '{}'",
                         dep_type_plural, r_type, name
                     ));
                     continue;
@@ -108,13 +108,13 @@ impl DependencyChecker {
         Ok(())
     }
 
-    /// 플러그인의 deps.yaml 파일을 로드하거나 캐시에서 가져옵니다.
+    /// 플러그인의 requirements.yaml 파일을 로드하거나 캐시에서 가져옵니다.
     fn get_or_load_config(&self, source_dir: &Path, plugin: &str) -> Result<Option<DependencyConfig>> {
         if let Some(cached) = self.cache.borrow().get(plugin) {
             return Ok(cached.clone());
         }
 
-        let deps_path = source_dir.join("plugins").join(plugin).join(DEPS_FILE_NAME);
+        let deps_path = source_dir.join(plugin).join(DEPS_FILE_NAME);
         let config = if deps_path.exists() {
             let content = fs::read_to_string(&deps_path)?;
             let parsed: DependencyConfig = serde_yaml::from_str(&content)?;
@@ -183,7 +183,7 @@ agents:
     fn test_dependency_checker_full_success() {
         let temp = tempfile::tempdir().unwrap();
         let source_dir = temp.path().join("atb_test_source");
-        let p1_dir = source_dir.join("plugins").join("p1");
+        let p1_dir = source_dir.join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 
         let deps_yaml = r#"
@@ -192,7 +192,7 @@ agents:
     skills:
       - p2:s1
 "#;
-        fs::write(p1_dir.join("deps.yaml"), deps_yaml).unwrap();
+        fs::write(p1_dir.join("requirements.yaml"), deps_yaml).unwrap();
 
         let mut registry = Registry::new();
         registry
@@ -210,7 +210,7 @@ agents:
     fn test_dependency_checker_missing_dep() {
         let temp = tempfile::tempdir().unwrap();
         let source_dir = temp.path().join("atb_test_source_missing");
-        let p1_dir = source_dir.join("plugins").join("p1");
+        let p1_dir = source_dir.join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 
         let deps_yaml = r#"
@@ -219,7 +219,7 @@ agents:
     skills:
       - p2:s1
 "#;
-        fs::write(p1_dir.join("deps.yaml"), deps_yaml).unwrap();
+        fs::write(p1_dir.join("requirements.yaml"), deps_yaml).unwrap();
 
         let mut registry = Registry::new();
         registry
@@ -232,14 +232,14 @@ agents:
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("Dependency check failed:"));
-        assert!(err_msg.contains("agent 'p1:a1' requires skill 'p2:s1' but it is missing in atb.yaml"));
+        assert!(err_msg.contains("agent 'p1:a1' requires skill 'p2:s1' but it is missing in toolkit.yaml"));
     }
 
     #[test]
     fn test_dependency_checker_invalid_id() {
         let temp = tempfile::tempdir().unwrap();
         let source_dir = temp.path().join("atb_test_source_invalid");
-        let p1_dir = source_dir.join("plugins").join("p1");
+        let p1_dir = source_dir.join("p1");
         fs::create_dir_all(&p1_dir).unwrap();
 
         let deps_yaml = r#"
@@ -248,7 +248,7 @@ agents:
     skills:
       - p2_s1_missing_colon
 "#;
-        fs::write(p1_dir.join("deps.yaml"), deps_yaml).unwrap();
+        fs::write(p1_dir.join("requirements.yaml"), deps_yaml).unwrap();
 
         let mut registry = Registry::new();
         registry

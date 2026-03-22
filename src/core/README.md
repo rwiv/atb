@@ -24,7 +24,7 @@
 ### 3. 데이터 모델 (`model.rs` 및 `target.rs`)
 
 - **`BuildTarget`**: `gemini-cli`, `claude-code`, `opencode` 타겟 정의. 각 타겟별 예약어 키(`reserved_key`)와 전체 예약어 목록을 관리합니다.
-- **`MetadataMap`**: `map.yaml`을 표현하는 모델로, 필드 이름과 원본 값을 기반으로 타겟별 치환 값을 정의합니다.
+- **`MetadataMap`**: `overrides.yaml`을 표현하는 모델로, 필드 이름과 원본 값을 기반으로 타겟별 치환 값을 정의합니다.
 - **`TransformedResource`**: 변환이 완료된 텍스트 파일들과 물리적 복사 대상(`extras`)을 묶은 최종 결과물 모델입니다.
 
 ### 4. 파일 필터 (`filter.rs`)

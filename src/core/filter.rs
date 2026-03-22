@@ -29,13 +29,20 @@ impl FileFilter {
             return Ok(false);
         }
 
-        // 2. 플러그인 내부 금지된 파일 체크
+        let relative_path = path.strip_prefix(root).unwrap_or(path);
+
+        // 2. 금지된 파일 체크
         if FORBIDDEN_FILES.contains(&file_name) {
-            anyhow::bail!("Forbidden file '{}' found in plugin: {:?}", file_name, path);
+            if relative_path.components().count() == 1 {
+                // 루트 레벨에 있는 전역 설정 파일들은 조용히 스킵합니다.
+                return Ok(false);
+            } else {
+                // 플러그인 하위 디렉터리 내부에 금지된 파일이 있으면 에러를 발생시킵니다.
+                anyhow::bail!("Forbidden file '{}' found in plugin: {:?}", file_name, path);
+            }
         }
 
         // 3. 제외 패턴 체크
-        let relative_path = path.strip_prefix(root).unwrap_or(path);
         for pattern in exclude_patterns {
             if pattern.matches_path(relative_path) {
                 return Ok(false);
@@ -49,6 +56,7 @@ impl FileFilter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::OVERRIDES_FILE_NAME;
     use std::fs;
     use tempfile::tempdir;
 
@@ -79,17 +87,30 @@ mod tests {
         fs::write(&hidden_file, "content")?;
         assert!(!filter.is_valid(root, &hidden_file, &patterns)?);
 
+        // 루트 전역 파일 (AGENTS.md, overrides.yaml) - Skip
+        for &f in FORBIDDEN_FILES {
+            let path = root.join(f);
+            fs::write(&path, "content")?;
+            assert!(!filter.is_valid(root, &path, &[])?);
+        }
+        let override_path = root.join(OVERRIDES_FILE_NAME);
+        fs::write(&override_path, "content")?;
+        assert!(!filter.is_valid(root, &override_path, &[])?);
+
         Ok(())
     }
 
     #[test]
-    fn test_forbidden_files_error() -> Result<()> {
+    fn test_forbidden_files_error_in_subdir() -> Result<()> {
         let dir = tempdir()?;
         let root = dir.path();
         let filter = FileFilter::new();
 
+        let subdir = root.join("plugin_a");
+        fs::create_dir(&subdir)?;
+
         for &f in FORBIDDEN_FILES {
-            let path = root.join(f);
+            let path = subdir.join(f);
             fs::write(&path, "content")?;
             let result = filter.is_valid(root, &path, &[]);
             assert!(result.is_err());

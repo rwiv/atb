@@ -11,8 +11,8 @@ fn test_app_build_integration() {
     // Setup fixtures
     setup_fixtures(root);
 
-    // Create atb.yaml
-    let config_path = root.join("atb.yaml");
+    // Create toolkit.yaml
+    let config_path = root.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -51,7 +51,7 @@ fn test_app_sync_integration() {
     setup_fixtures(root);
 
     // Build first to create targets
-    let config_path = root.join("atb.yaml");
+    let config_path = root.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -90,15 +90,14 @@ resources:
     app.run(sync_cli).expect("App sync failed");
 
     // Verify source update
-    let source_path = root.join("plugins/plugin_a/commands/foo.md");
+    let source_path = root.join("plugin_a/commands/foo.md");
     let source_content = fs::read_to_string(source_path).unwrap();
     assert!(source_content.contains("description: Updated description"));
 }
 
 fn setup_fixtures(root: &Path) {
-    let plugins = root.join("plugins");
-    let plugin_a_cmds = plugins.join("plugin_a/commands");
-    let plugin_c_skills = plugins.join("plugin_c/skills/python_expert");
+    let plugin_a_cmds = root.join("plugin_a/commands");
+    let plugin_c_skills = root.join("plugin_c/skills/python_expert");
 
     fs::create_dir_all(&plugin_a_cmds).unwrap();
     fs::create_dir_all(&plugin_c_skills).unwrap();

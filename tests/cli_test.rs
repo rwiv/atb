@@ -17,7 +17,7 @@ fn test_build_default_config() {
     cmd.arg("build")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("Config file not found: atb.yaml"));
+        .stderr(predicate::str::contains("Config file not found: toolkit.yaml"));
 }
 
 #[test]

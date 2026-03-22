@@ -8,10 +8,10 @@
 
 `atb`의 빌드 과정은 순차적인 파이프라인을 거쳐 수행됩니다.
 
-1. **설정 로드 (Load Config)**: `atb.yaml`을 읽어 빌드 컨텍스트(소스 경로, 타겟 에이전트 등)를 생성합니다. (`builder/config.rs`)
+1. **설정 로드 (Load Config)**: `toolkit.yaml`을 읽어 빌드 컨텍스트(소스 경로, 타겟 에이전트 등)를 생성합니다. (`builder/config.rs`)
 2. **리소스 스캔 및 로드 (Scan & Load)**: 소스 경로 내의 플러그인 구조를 분석하여 파일들을 수집하고, 이를 `core::Resource` 객체로 로드합니다. (`loader` 모듈)
 3. **검증 및 등록 (Validate & Register)**: 로드된 리소스들의 이름 충돌 여부를 확인하고, 빌드 대상 리소스를 `loader::registry::Registry`에 등록합니다. 타입과 이름을 모두 고려하여 중복을 체크합니다.
-4. **의존성 검증 (Dependency Check)**: 각 리소스의 `deps.yaml`을 확인하여 모든 의존 리소스가 `Registry`에 존재하는지 확인합니다. (`builder::dependency::DependencyChecker`)
+4. **의존성 검증 (Dependency Check)**: 각 리소스의 `requirements.yaml`을 확인하여 모든 의존 리소스가 `Registry`에 존재하는지 확인합니다. (`builder::dependency::DependencyChecker`)
 5. **포맷 변환 (Transform)**: 설정된 타겟(`BuildTarget`) 규격에 맞춰 각 리소스를 실제 파일 포맷(TOML, Markdown FM 등)으로 변환합니다. (`transformer` 모듈 사용)
 6. **최종 배포 (Emit)**: 기존 출력 디렉터리를 정리(Clean)한 후, 변환된 리소스들을 물리적 파일로 작성합니다. (`builder::emitter::Emitter`)
 
@@ -95,7 +95,7 @@ graph TD
 
 분산된 소스 파일들을 읽어 하나의 `Resource` 객체로 완성하는 조립 과정을 담당합니다.
 
-- **Metadata Merge & Map**: `loader::merger::MetadataMerger`는 `BuildTarget`과 소스 루트의 `map.yaml` 정보를 활용하여 메타데이터를 통합합니다.
+- **Metadata Merge & Map**: `loader::merger::MetadataMerger`는 `BuildTarget`과 소스 루트의 `overrides.yaml` 정보를 활용하여 메타데이터를 통합합니다.
     - **Mapping**: Frontmatter 필드 값을 타겟에 맞게 치환합니다.
     - **Override**: 외부 YAML 파일의 타겟 전용 섹션 내용을 최종적으로 덮어씁니다.
 - **Extra Files**: `Skill` 타입 리소스 폴더 내의 `SKILL.md`와 `SKILL.yaml`을 제외한 모든 파일은 `extras`로 분류되어, 변환 단계 후 Emitter에 의해 물리적으로 대상 폴더에 복사됩니다.
@@ -107,7 +107,7 @@ graph TD
 `loader::merger::MetadataMerger`는 다음 단계를 통해 최종 메타데이터를 조립합니다.
 
 1.  **Extract Base**: `.md` 파일의 YAML Frontmatter에서 공용 필드를 추출합니다.
-2.  **Apply Mapping (Optional)**: `map.yaml` 정의에 따라 필드 값을 타겟에 맞게 치환합니다.
+2.  **Apply Mapping (Optional)**: `overrides.yaml` 정의에 따라 필드 값을 타겟에 맞게 치환합니다.
 3.  **External Process (Optional)**: 외부 메타데이터 파일(`.yaml`/`.yml`)에서 타겟 전역 예약어 섹션(`gemini-cli` 등)만 추출하여 기존 값을 덮어씁니다. (상세 오버라이트 로직)
 4.  **Cleanup**: 최종 객체에서 모든 타겟 예약어 키들을 제거하여 깨끗한 메타데이터 객체를 완성합니다.
 

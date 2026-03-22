@@ -9,18 +9,18 @@ use tempfile::tempdir;
 fn test_metadata_map_integration() -> Result<()> {
     let dir = tempdir()?;
     let source_root = dir.path();
-    let plugins_dir = source_root.join("plugins");
+    let plugins_dir = source_root;
     let cmd_dir = plugins_dir.join("p1/commands");
     fs::create_dir_all(&cmd_dir)?;
 
-    // 1. map.yaml 작성
+    // 1. overrides.yaml 작성
     let map_yaml = "
 model:
   sonnet:
     gemini-cli: gemini-3.0-flash
     claude-code: sonnet-v3
 ";
-    fs::write(source_root.join("map.yaml"), map_yaml)?;
+    fs::write(source_root.join("overrides.yaml"), map_yaml)?;
 
     // 2. 리소스 작성 (Frontmatter 포함)
     let md_content = "---
@@ -55,17 +55,17 @@ model: sonnet
 fn test_metadata_map_with_external_override() -> Result<()> {
     let dir = tempdir()?;
     let source_root = dir.path();
-    let plugins_dir = source_root.join("plugins");
+    let plugins_dir = source_root;
     let cmd_dir = plugins_dir.join("p1/commands");
     fs::create_dir_all(&cmd_dir)?;
 
-    // 1. map.yaml 작성
+    // 1. overrides.yaml 작성
     let map_yaml = "
 model:
   sonnet:
     gemini-cli: gemini-3.0-flash
 ";
-    fs::write(source_root.join("map.yaml"), map_yaml)?;
+    fs::write(source_root.join("overrides.yaml"), map_yaml)?;
 
     // 2. 리소스 작성 (MD + External YAML)
     let md_content = "---

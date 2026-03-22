@@ -10,7 +10,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Build the agent resources based on atb.yaml
+    /// Build the agent resources based on toolkit.yaml
     Build {
         /// Optional path to the config file
         #[arg(short, long)]

@@ -30,17 +30,17 @@
 
 ### Step 3: 빌드 파이프라인 통합 및 필터링
 
-- `main.rs`에서 `agb.yaml`의 `resources` 섹션(`commands`, `agents`, `skills`)에 정의된 리소스 식별자(예: `plugin_a:foo`)를 읽습니다.
-- 로드된 리소스 중 `agb.yaml`에 명시된 리소스들만 선별하여 `Registry`에 등록하는 흐름을 구성하세요.
+- `main.rs`에서 `toolkit.yaml`의 `resources` 섹션(`commands`, `agents`, `skills`)에 정의된 리소스 식별자(예: `plugin_a:foo`)를 읽습니다.
+- 로드된 리소스 중 `toolkit.yaml`에 명시된 리소스들만 선별하여 `Registry`에 등록하는 흐름을 구성하세요.
 
 ## 4. Constraints (제약 사항 및 금지 행동)
 
 - 에러 메시지는 "Conflict detected: Resource 'foo' is defined in both 'plugin_a' and 'plugin_b'."와 같이 사용자가 즉시 조치할 수 있도록 상세해야 합니다.
-- `agb.yaml`에 명시되지 않은 리소스는 로드되었더라도 `Registry`에 담기지 않아야 합니다.
+- `toolkit.yaml`에 명시되지 않은 리소스는 로드되었더라도 `Registry`에 담기지 않아야 합니다.
 
 ## 5. Acceptance Criteria (검증 체크리스트)
 
 1. 서로 다른 플러그인에서 같은 이름의 리소스를 빌드 대상으로 지정했을 때 에러를 발생시키며 빌드가 중단되는가?
-2. `agb.yaml`에 정의된 리소스들만 최종적으로 `Registry`에 보관되는가?
+2. `toolkit.yaml`에 정의된 리소스들만 최종적으로 `Registry`에 보관되는가?
 3. 충돌 에러 메시지에 충돌이 발생한 리소스 이름과 소스 플러그인 이름이 정확히 포함되어 있는가?
 4. `cargo test`를 통해 `Registry`의 등록 및 충돌 방지 로직이 검증되는가? (단위 테스트 작성 권장)

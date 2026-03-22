@@ -3,7 +3,7 @@
 ## 1. Objective (목표)
 
 - `tests/fixtures/plugins/` 디렉터리를 재귀적으로 탐색하여 빌드 대상이 되는 파일 리스트를 추출합니다.
-- `agb.yaml`에 정의된 `exclude` 패턴을 적용하여 불필요한 파일이 로딩 대상에서 제외되도록 처리하는 기초 로직을 구현합니다.
+- `toolkit.yaml`에 정의된 `exclude` 패턴을 적용하여 불필요한 파일이 로딩 대상에서 제외되도록 처리하는 기초 로직을 구현합니다.
 
 ## 2. Context & Files (작업 범위)
 
@@ -31,7 +31,7 @@
 
 ### Step 3: `exclude` 패턴 필터링 적용
 
-- `agb.yaml`에서 로드된 `Config`의 `exclude` 리스트를 인자로 받습니다.
+- `toolkit.yaml`에서 로드된 `Config`의 `exclude` 리스트를 인자로 받습니다.
 - `glob` 크레이트를 활용하여 각 파일 경로가 `exclude` 패턴 중 하나라도 매칭되는지 검사합니다.
 - 필터링을 통과한 "유효한 파일 경로"의 `Vec<PathBuf>` 목록을 반환하는 함수를 작성하세요.
 
@@ -44,6 +44,6 @@
 ## 5. Acceptance Criteria (검증 체크리스트)
 
 1. `tests/fixtures/plugins/` 내의 모든 마크다운(`.md`) 및 JSON(`.json`) 파일이 재귀적으로 탐색되는가?
-2. `agb.yaml`의 `exclude` 패턴에 명시된 파일(예: `*.tmp`)이 결과 목록에서 정확히 제외되는가?
+2. `toolkit.yaml`의 `exclude` 패턴에 명시된 파일(예: `*.tmp`)이 결과 목록에서 정확히 제외되는가?
 3. 유효하지 않은 경로나 권한 문제가 있는 디렉터리에 대해 명확한 에러 메시지를 출력하는가?
 4. `cargo check` 실행 시 타입 오류나 미사용 변수 경고가 없는가?

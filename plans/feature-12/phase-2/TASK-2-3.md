@@ -1,7 +1,7 @@
-# TASK 2-3: Implement `deps.yaml` Caching
+# TASK 2-3: Implement `requirements.yaml` Caching
 
 ## 개요 (Description)
-동일한 플러그인에 속한 여러 리소스를 검사할 때 중복된 파일 읽기를 방지하기 위해 `deps.yaml` 로딩 결과를 캐싱합니다.
+동일한 플러그인에 속한 여러 리소스를 검사할 때 중복된 파일 읽기를 방지하기 위해 `requirements.yaml` 로딩 결과를 캐싱합니다.
 
 ## 수정 파일 (Files to Modify)
 - `src/builder/dependency.rs`

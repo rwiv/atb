@@ -11,8 +11,8 @@
 2. 메시지 형식 예시:
    ```text
    Dependency check failed:
-     - agent 'p1:a1' requires skill 'p2:s1' but it is missing in agb.yaml.
-     - skill 'p2:s2' requires command 'p3:c1' but it is missing in agb.yaml.
+     - agent 'p1:a1' requires skill 'p2:s1' but it is missing in toolkit.yaml.
+     - skill 'p2:s2' requires command 'p3:c1' but it is missing in toolkit.yaml.
    ```
 3. `anyhow::bail!` 또는 `anyhow::anyhow!`를 사용하여 최종 에러를 반환합니다.
 

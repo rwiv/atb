@@ -1,7 +1,7 @@
 # TASK: Define MetadataMap Model
 
 ## 개요
-`map.yaml`의 계층 구조를 메모리 모델로 표현하기 위해 `src/core/model.rs`에 `MetadataMap` 구조체를 정의합니다.
+`overrides.yaml`의 계층 구조를 메모리 모델로 표현하기 위해 `src/core/model.rs`에 `MetadataMap` 구조체를 정의합니다.
 
 ## 작업 상세
 

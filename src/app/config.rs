@@ -19,7 +19,7 @@ pub struct Config {
     pub resources: Resources,
 }
 
-/// atb.yaml 파일을 읽어 Config 구조체로 파싱합니다.
+/// toolkit.yaml 파일을 읽어 Config 구조체로 파싱합니다.
 pub fn load_config<P: AsRef<Path>>(path: P) -> anyhow::Result<Config> {
     let content = fs::read_to_string(path)?;
     parse_config(&content)

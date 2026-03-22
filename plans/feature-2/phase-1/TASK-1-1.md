@@ -1,8 +1,8 @@
-# Task 6.1: agb.yaml 모델 확장 및 source 필드 추가
+# Task 6.1: toolkit.yaml 모델 확장 및 source 필드 추가
 
 ## 1. Objective (목표)
 
-- `agb.yaml` 설정 파일에 필수 필드인 `source`를 추가하여, 리소스(Plugins, AGENTS.md)가 위치한 절대 경로를 명시할 수 있도록 합니다.
+- `toolkit.yaml` 설정 파일에 필수 필드인 `source`를 추가하여, 리소스(Plugins, AGENTS.md)가 위치한 절대 경로를 명시할 수 있도록 합니다.
 - Rust의 `Config` 구조체를 업데이트하여 새로운 필드를 지원하고, 파싱 시 유효성을 검사합니다.
 
 ## 2. Context & Files (작업 범위)
@@ -12,7 +12,7 @@
   - `src/config.rs` (현재 Config 모델 구현체)
 - **수정할 파일:**
   - `src/config.rs` (Config 구조체 및 파싱 로직 수정)
-  - `tests/fixtures/agb.yaml` (테스트용 샘플 파일에 source 필드 추가)
+  - `tests/fixtures/toolkit.yaml` (테스트용 샘플 파일에 source 필드 추가)
 
 ## 3. Instructions (세부 지침)
 
@@ -64,6 +64,6 @@ resources:
 
 ## 5. Acceptance Criteria (검증 체크리스트)
 
-1. `agb.yaml`에 `source` 필드가 있을 때 `Config` 구조체로 정확히 매핑되는가?
+1. `toolkit.yaml`에 `source` 필드가 있을 때 `Config` 구조체로 정확히 매핑되는가?
 2. `source` 필드가 누락되었을 때 파싱 에러가 발생하는가?
 3. `cargo test`를 실행하여 `config.rs`의 모든 테스트가 통과하는가?

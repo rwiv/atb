@@ -1,7 +1,7 @@
 # TASK: BuildTarget Serialization Utilities
 
 ## 개요
-`map.yaml` 파싱 시 YAML 키(문자열)를 `BuildTarget` 열거형으로 변환하거나 그 반대의 작업을 원활하게 하기 위한 유틸리티를 강화합니다.
+`overrides.yaml` 파싱 시 YAML 키(문자열)를 `BuildTarget` 열거형으로 변환하거나 그 반대의 작업을 원활하게 하기 위한 유틸리티를 강화합니다.
 
 ## 작업 상세
 

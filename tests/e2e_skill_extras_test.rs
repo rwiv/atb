@@ -8,15 +8,15 @@ fn test_e2e_skill_extra_files_inclusion() {
     let root = temp_dir.path();
 
     // 1. Setup fixtures with extra files in a skill
-    let plugins = root.join("plugins");
-    let skill_dir = plugins.join("my_plugin/skills/heavy_skill");
+
+    let skill_dir = root.join("my_plugin/skills/heavy_skill");
     fs::create_dir_all(&skill_dir).unwrap();
 
     fs::write(skill_dir.join("SKILL.md"), "Heavy Skill Content").unwrap();
     fs::write(skill_dir.join("logic.py"), "print('hello')").unwrap();
     fs::write(skill_dir.join("data.json"), r#"{"key": "value"}"#).unwrap();
 
-    // 2. Create atb.yaml
+    // 2. Create toolkit.yaml
     let config = format!(
         r#"
 source: {}
@@ -27,11 +27,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 3. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify outputs
@@ -56,8 +56,8 @@ fn test_e2e_skill_extra_files_clean_behavior() {
     let root = temp_dir.path();
 
     // 1. Setup fixtures
-    let plugins = root.join("plugins");
-    let skill_dir = plugins.join("my_plugin/skills/simple_skill");
+
+    let skill_dir = root.join("my_plugin/skills/simple_skill");
     fs::create_dir_all(&skill_dir).unwrap();
     fs::write(skill_dir.join("SKILL.md"), "content").unwrap();
 
@@ -66,7 +66,7 @@ fn test_e2e_skill_extra_files_clean_behavior() {
     fs::create_dir_all(&output_skill_dir).unwrap();
     fs::write(output_skill_dir.join("junk.txt"), "obsolete").unwrap();
 
-    // 3. Create atb.yaml
+    // 3. Create toolkit.yaml
     let config = format!(
         r#"
 source: {}
@@ -77,11 +77,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 4. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 5. Verify junk is gone and skill is present
@@ -95,15 +95,15 @@ fn test_e2e_skill_extra_files_nested_structure() {
     let root = temp_dir.path();
 
     // 1. Setup fixtures with nested extra files
-    let plugins = root.join("plugins");
-    let skill_dir = plugins.join("my_plugin/skills/nested_skill");
+
+    let skill_dir = root.join("my_plugin/skills/nested_skill");
     let ref_dir = skill_dir.join("ref");
     fs::create_dir_all(&ref_dir).unwrap();
 
     fs::write(skill_dir.join("SKILL.md"), "Nested Skill Content").unwrap();
     fs::write(ref_dir.join("foo.md"), "Nested File Content").unwrap();
 
-    // 2. Create atb.yaml
+    // 2. Create toolkit.yaml
     let config = format!(
         r#"
 source: {}
@@ -114,11 +114,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("atb.yaml"), config).unwrap();
+    fs::write(root.join("toolkit.yaml"), config).unwrap();
 
     // 3. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("atb.yaml"));
+    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify outputs: nested structure should be preserved

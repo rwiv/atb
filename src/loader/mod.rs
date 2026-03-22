@@ -6,7 +6,7 @@ pub mod resolver;
 
 pub use model::*;
 
-use crate::core::{BuildTarget, FileFilter, MetadataMap, PLUGINS_DIR_NAME, Resource};
+use crate::core::{BuildTarget, FileFilter, MetadataMap, OVERRIDES_FILE_NAME, Resource};
 use anyhow::Result;
 use glob::Pattern;
 use std::fs;
@@ -16,7 +16,7 @@ use walkdir::WalkDir;
 use self::parser::ResourceParser;
 use self::resolver::ResourcePathResolver;
 
-/// 플러그인 디렉터리를 탐색하고 리소스를 로드하는 객체입니다.
+/// 소스 디렉터리를 탐색하고 리소스를 로드하는 객체입니다.
 pub struct ResourceLoader {
     root: PathBuf,
     filter: FileFilter,
@@ -33,22 +33,17 @@ impl ResourceLoader {
             anyhow::bail!("Source root directory not found: {:?}", source_root);
         }
 
-        let plugins_dir = source_root.join(PLUGINS_DIR_NAME);
-        if !plugins_dir.exists() {
-            anyhow::bail!("Plugins directory not found: {:?}", plugins_dir);
-        }
-
         let filter = FileFilter::new();
         let resolver = ResourcePathResolver::new();
 
-        // map.yaml 로드
-        let map_path = source_root.join("map.yaml");
+        // overrides.yaml 로드
+        let map_path = source_root.join(OVERRIDES_FILE_NAME);
         let metadata_map = Self::load_metadata_map(&map_path).ok();
 
         let parser = ResourceParser::new(target, metadata_map);
 
         Ok(Self {
-            root: plugins_dir,
+            root: source_root,
             filter,
             resolver,
             parser,
@@ -81,7 +76,7 @@ impl ResourceLoader {
         Ok(files)
     }
 
-    /// map.yaml 파일을 로드하여 MetadataMap 객체로 변환합니다.
+    /// overrides.yaml 파일을 로드하여 MetadataMap 객체로 변환합니다.
     fn load_metadata_map(path: &Path) -> Result<MetadataMap> {
         if !path.exists() {
             return Ok(MetadataMap::default());
@@ -102,11 +97,10 @@ mod tests {
     fn test_resource_loader_load_integration() -> Result<()> {
         let dir = tempdir()?;
         let source_root = dir.path();
-        let plugins_path = source_root.join("plugins");
 
-        // 샘플 구조 생성
-        let cmd_dir = plugins_path.join("plugin_a/commands");
-        let skill_dir = plugins_path.join("plugin_b/skills/my_skill");
+        // 샘플 구조 생성 (플러그인이 루트 하위에 바로 위치)
+        let cmd_dir = source_root.join("plugin_a/commands");
+        let skill_dir = source_root.join("plugin_b/skills/my_skill");
         fs::create_dir_all(&cmd_dir)?;
         fs::create_dir_all(&skill_dir)?;
 

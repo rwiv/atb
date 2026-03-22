@@ -38,4 +38,4 @@ fn apply_mapping(&self, base: &mut Value, map: &MetadataMap) -> Result<()> {
 - `merge` 메서드 시작 부분에서 `apply_mapping`을 호출하도록 수정합니다.
 
 ## 검증 방법
-- `map.yaml` 설정과 다양한 `base` 값을 시뮬레이션하여 매핑이 올바르게 적용되는지 확인하는 단위 테스트를 작성합니다.
+- `overrides.yaml` 설정과 다양한 `base` 값을 시뮬레이션하여 매핑이 올바르게 적용되는지 확인하는 단위 테스트를 작성합니다.

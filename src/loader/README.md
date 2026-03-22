@@ -27,7 +27,7 @@
 
 Frontmatter, Metadata Map, 외부 메타데이터를 통합하는 단일 책임 모듈입니다.
 
-- **필드 매핑**: `map.yaml` 규칙에 따라 필드 값을 타겟별로 치환합니다.
+- **필드 매핑**: `overrides.yaml` 규칙에 따라 필드 값을 타겟별로 치환합니다.
 - **오버라이트**: 타겟 전용 예약어 섹션 병합을 수행합니다.
 
 ### 4. ResourcePathResolver (`resolver.rs`)
