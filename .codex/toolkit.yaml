@@ -1,0 +1,8 @@
+source: ~/projects/agents/plugins
+target: codex
+exclude:
+  - "*.ko.md"
+resources:
+  skills:
+    - everything-claude-code:rust-patterns
+    - everything-claude-code:rust-testing

@@ -12,7 +12,7 @@
 
 - `mod.rs`: `Transformer` 트레이트 및 `TransformerFactory` 정의.
 - `gemini.rs`: Gemini-cli용 하이브리드 변환기.
-- `codex.rs`: Codex용 변환기 (멀티 에이전트 설정 지원을 위해 `.codex/config.toml` 자동 생성 및 `developer_instructions` 매핑 수행).
+- `codex.rs`: Codex용 변환기 (멀티 에이전트 설정 지원을 위해 output-dir 기준 `config.toml` 자동 생성 및 `developer_instructions` 매핑 수행).
 - `default.rs`: 공용 마크다운 변환기 (Claude-code, OpenCode 및 타겟별 기본 변환).
 
 ## 주요 구성 요소
@@ -50,8 +50,9 @@ pub trait Transformer {
   - `DefaultTransformer` 사용. 메타데이터 -> YAML Frontmatter, 본문 -> 마크다운 본문 결합하여 `*.md` 생성.
   - 전역 지침: `AGENTS.md` 생성.
 - **Codex**:
-  - **Commands**: `DefaultTransformer`와 유사하게 마크다운 형식을 유지하지만, `prompts/` 디렉터리에 생성.
-  - **Agents**: 개별 에이전트는 `agents/[name].toml` 로 생성되며, 본문은 `developer_instructions` 필드에 삽입됩니다. 이후 전체 에이전트 목록이 `.codex/config.toml` (설명 등 메타데이터 포함) 에 취합되어 자동 생성됩니다.
+  - **Commands**: `DefaultTransformer`와 유사하게 마크다운 형식을 유지하지만, `../.agents/skills/[name]/SKILL.md` 경로에 SKILL 포맷으로 생성됩니다.
+  - **Skills**: Command와 동일한 `../.agents/skills/[name]/SKILL.md` 네임스페이스에 생성됩니다.
+  - **Agents**: 개별 에이전트는 `agents/[name].toml` 로 생성되며, 본문은 `developer_instructions` 필드에 삽입됩니다. 이후 전체 에이전트 목록이 output-dir 기준 `config.toml` (설명 등 메타데이터 포함) 에 취합되어 자동 생성됩니다.
   - 전역 지침: `AGENTS.md` 생성.
 
 ## 새로운 에이전트 추가 방법

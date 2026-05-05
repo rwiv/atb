@@ -1,6 +1,6 @@
 use crate::core::{
-    AGENTS_MD, BuildTarget, CODEX_CONFIG_FILE_NAME, DIR_AGENTS, DIR_CODEX, DIR_PROMPTS, DIR_SKILLS, EXT_MD, EXT_TOML,
-    Resource, ResourceData, ResourceType, SKILL_MD, TransformedFile,
+    AGENTS_MD, BuildTarget, CODEX_CONFIG_FILE_NAME, DIR_AGENTS, DIR_AGENTS_SKILLS, EXT_TOML, Resource, ResourceData,
+    ResourceType, SKILL_MD, TransformedFile,
 };
 use crate::transformer::Transformer;
 use crate::transformer::default::DefaultTransformer;
@@ -14,21 +14,21 @@ impl Transformer for CodexTransformer {
     fn transform(&self, resource: &Resource) -> Result<TransformedFile> {
         match resource {
             Resource::Command(data) => {
-                // Commands: Markdown 포맷 유지, prompts/ 디렉터리 사용
                 let default_transformer = DefaultTransformer {
                     target: BuildTarget::Codex,
                 };
                 let mut transformed = default_transformer.transform(resource)?;
-                transformed.path = PathBuf::from(DIR_PROMPTS).join(format!("{}{}", data.name, EXT_MD));
+                transformed.path = PathBuf::from(DIR_AGENTS_SKILLS).join(&data.name).join(SKILL_MD);
                 Ok(transformed)
             }
             Resource::Agent(data) => self.transform_agent_to_toml(data),
-            Resource::Skill(_) => {
-                // Skills: 기본 스킬 변환 로직 적용
+            Resource::Skill(data) => {
                 let default_transformer = DefaultTransformer {
                     target: BuildTarget::Codex,
                 };
-                default_transformer.transform(resource)
+                let mut transformed = default_transformer.transform(resource)?;
+                transformed.path = PathBuf::from(DIR_AGENTS_SKILLS).join(&data.base.name).join(SKILL_MD);
+                Ok(transformed)
             }
         }
     }
@@ -75,7 +75,7 @@ impl Transformer for CodexTransformer {
         root_table.insert("agents".to_string(), toml::Value::Table(agents_table));
 
         let content = toml::to_string_pretty(&root_table)?;
-        let path = PathBuf::from(DIR_CODEX).join(CODEX_CONFIG_FILE_NAME);
+        let path = PathBuf::from(CODEX_CONFIG_FILE_NAME);
 
         Ok(vec![TransformedFile { path, content }])
     }
@@ -89,7 +89,6 @@ impl Transformer for CodexTransformer {
     ) -> Result<ResourceData> {
         match r_type {
             ResourceType::Command => {
-                // prompts/ 내의 .md 파일을 ResourceData로 복원
                 let default_transformer = DefaultTransformer {
                     target: BuildTarget::Codex,
                 };
@@ -105,8 +104,8 @@ impl Transformer for CodexTransformer {
 
                 let mut metadata = serde_json::to_value(table)?;
 
-                // .codex/config.toml 파싱하여 description 복원
-                let config_path = output_dir.join(DIR_CODEX).join(CODEX_CONFIG_FILE_NAME);
+                // config.toml을 파싱하여 description을 복원합니다.
+                let config_path = output_dir.join(CODEX_CONFIG_FILE_NAME);
                 if config_path.exists()
                     && let Ok(config_content) = std::fs::read_to_string(&config_path)
                     && let Ok(config_table) = toml::from_str::<toml::Table>(&config_content)
@@ -137,9 +136,9 @@ impl Transformer for CodexTransformer {
 
     fn get_target_path(&self, r_type: ResourceType, name: &str) -> PathBuf {
         match r_type {
-            ResourceType::Command => PathBuf::from(DIR_PROMPTS).join(format!("{}{}", name, EXT_MD)),
+            ResourceType::Command => PathBuf::from(DIR_AGENTS_SKILLS).join(name).join(SKILL_MD),
             ResourceType::Agent => PathBuf::from(DIR_AGENTS).join(format!("{}{}", name, EXT_TOML)),
-            ResourceType::Skill => PathBuf::from(DIR_SKILLS).join(name).join(SKILL_MD),
+            ResourceType::Skill => PathBuf::from(DIR_AGENTS_SKILLS).join(name).join(SKILL_MD),
         }
     }
 }
@@ -181,7 +180,7 @@ impl CodexTransformer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::ResourceData;
+    use crate::core::{ResourceData, SkillData};
     use serde_json::json;
     use toml::Table;
 
@@ -201,10 +200,35 @@ mod tests {
         let result = transformer.transform(&resource).unwrap();
         assert_eq!(
             result.path,
-            PathBuf::from(DIR_PROMPTS).join(format!("test-cmd{}", EXT_MD))
+            PathBuf::from(DIR_AGENTS_SKILLS).join("test-cmd").join(SKILL_MD)
         );
         assert!(result.content.contains("description: A test command"));
         assert!(result.content.contains("Hello Codex"));
+    }
+
+    #[test]
+    fn test_codex_skill_transformation() {
+        let transformer = CodexTransformer;
+        let resource = Resource::Skill(SkillData {
+            base: ResourceData {
+                name: "test-skill".to_string(),
+                plugin: "test-plugin".to_string(),
+                content: "Skill Content".to_string(),
+                metadata: json!({
+                    "description": "Skill description"
+                }),
+                source_path: PathBuf::from("src/test-skill"),
+            },
+            extras: Vec::new(),
+        });
+
+        let result = transformer.transform(&resource).unwrap();
+        assert_eq!(
+            result.path,
+            PathBuf::from(DIR_AGENTS_SKILLS).join("test-skill").join(SKILL_MD)
+        );
+        assert!(result.content.contains("description: Skill description"));
+        assert!(result.content.contains("Skill Content"));
     }
 
     #[test]
@@ -297,7 +321,7 @@ developer_instructions = "Agent Logic"
 
         assert_eq!(result.len(), 1);
         let config_file = &result[0];
-        assert_eq!(config_file.path, PathBuf::from(".codex/config.toml"));
+        assert_eq!(config_file.path, PathBuf::from(CODEX_CONFIG_FILE_NAME));
 
         let root: Table = toml::from_str(&config_file.content).unwrap();
         let agents = root.get("agents").unwrap().as_table().unwrap();

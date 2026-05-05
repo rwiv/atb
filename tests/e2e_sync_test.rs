@@ -1,7 +1,15 @@
 use assert_cmd::Command;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::tempdir;
+
+fn write_config(root: &Path, output_dir_name: &str, content: String) -> PathBuf {
+    let output_dir = root.join(output_dir_name);
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_path = output_dir.join("toolkit.yaml");
+    fs::write(&config_path, content).unwrap();
+    config_path
+}
 
 #[test]
 fn test_e2e_sync_gemini_cli() {
@@ -22,31 +30,32 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_config(root, ".gemini", config);
+    let output_dir = root.join(".gemini");
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(&config_path);
     cmd.assert().success();
 
     // 2. Modify target files
-    let cmd_toml_path = root.join("commands/foo.toml");
+    let cmd_toml_path = output_dir.join("commands/foo.toml");
     let mut toml_content = fs::read_to_string(&cmd_toml_path).unwrap();
     toml_content = toml_content.replace("Foo command description", "Updated description");
     toml_content = toml_content.replace("prompt = \"# Foo Command\"", "prompt = \"# Updated Command Content\"");
     fs::write(&cmd_toml_path, toml_content).unwrap();
 
     // Modify skill extra file
-    let extra_file_path = root.join("skills/python_expert/extra.txt");
+    let extra_file_path = output_dir.join("skills/python_expert/extra.txt");
     fs::write(&extra_file_path, "New Extra Content").unwrap();
 
     // Add new file to skill
-    let new_file_path = root.join("skills/python_expert/new.txt");
+    let new_file_path = output_dir.join("skills/python_expert/new.txt");
     fs::write(&new_file_path, "Added File Content").unwrap();
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("sync").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 4. Verify Source
@@ -79,15 +88,16 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_config(root, ".claude", config);
+    let output_dir = root.join(".claude");
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(&config_path);
     cmd.assert().success();
 
     // 2. Modify target files
-    let cmd_md_path = root.join("commands/foo.md");
+    let cmd_md_path = output_dir.join("commands/foo.md");
     let mut md_content = fs::read_to_string(&cmd_md_path).unwrap();
     md_content = md_content.replace("description: Foo command description", "description: Claude Updated");
     md_content = md_content.replace("# Foo Command", "# Claude Content Updated");
@@ -95,7 +105,7 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("sync").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 4. Verify Source
@@ -124,20 +134,21 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_config(root, ".gemini", config);
+    let output_dir = root.join(".gemini");
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(&config_path);
     cmd.assert().success();
 
     // 2. Add excluded file to target
-    let tmp_file_path = root.join("skills/python_expert/test.tmp");
+    let tmp_file_path = output_dir.join("skills/python_expert/test.tmp");
     fs::write(&tmp_file_path, "Should be ignored").unwrap();
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("sync").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 4. Verify Source (should NOT contain the .tmp file)

@@ -1,6 +1,15 @@
 use assert_cmd::Command;
 use std::fs;
+use std::path::{Path, PathBuf};
 use tempfile::tempdir;
+
+fn write_gemini_config(root: &Path, content: String) -> PathBuf {
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_path = output_dir.join("toolkit.yaml");
+    fs::write(&config_path, content).unwrap();
+    config_path
+}
 
 #[test]
 fn test_e2e_skill_extra_files_inclusion() {
@@ -27,15 +36,15 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     // 3. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 4. Verify outputs
-    let output_skill_dir = root.join("skills/heavy_skill");
+    let output_skill_dir = root.join(".gemini/skills/heavy_skill");
     assert!(output_skill_dir.join("SKILL.md").exists());
     assert!(output_skill_dir.join("logic.py").exists());
     assert!(output_skill_dir.join("data.json").exists());
@@ -62,7 +71,7 @@ fn test_e2e_skill_extra_files_clean_behavior() {
     fs::write(skill_dir.join("SKILL.md"), "content").unwrap();
 
     // 2. Pre-create some junk in the output directory
-    let output_skill_dir = root.join("skills/simple_skill");
+    let output_skill_dir = root.join(".gemini/skills/simple_skill");
     fs::create_dir_all(&output_skill_dir).unwrap();
     fs::write(output_skill_dir.join("junk.txt"), "obsolete").unwrap();
 
@@ -77,11 +86,11 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     // 4. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 5. Verify junk is gone and skill is present
@@ -114,15 +123,15 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     // 3. Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert().success();
 
     // 4. Verify outputs: nested structure should be preserved
-    let output_skill_dir = root.join("skills/nested_skill");
+    let output_skill_dir = root.join(".gemini/skills/nested_skill");
     assert!(output_skill_dir.join("SKILL.md").exists());
     assert!(
         output_skill_dir.join("ref/foo.md").exists(),

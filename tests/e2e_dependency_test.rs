@@ -3,6 +3,14 @@ use std::fs;
 use std::path::Path;
 use tempfile::tempdir;
 
+fn write_gemini_config(root: &Path, content: String) -> std::path::PathBuf {
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_path = output_dir.join("toolkit.yaml");
+    fs::write(&config_path, content).unwrap();
+    config_path
+}
+
 #[test]
 fn test_e2e_dependency_success() {
     let temp_dir = tempdir().unwrap();
@@ -22,10 +30,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert().success();
 }
 
@@ -47,10 +55,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
 
     cmd.assert()
         .failure()
@@ -101,10 +109,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert().success();
 }
 
@@ -150,10 +158,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let config_path = write_gemini_config(root, config);
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(&config_path);
     cmd.assert().success();
 
     // Now remove c1 from toolkit.yaml
@@ -169,10 +177,10 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config_missing).unwrap();
+    fs::write(&config_path, config_missing).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(config_path);
     cmd.assert()
         .failure()
         .stderr(predicates::str::contains("agent 'p2:a1' requires command 'p1:c1'"));

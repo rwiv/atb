@@ -1,5 +1,6 @@
 use crate::core::{
-    AGENTS_MD, CLAUDE_MD, DIR_AGENTS, DIR_CODEX, DIR_COMMANDS, DIR_PROMPTS, DIR_SKILLS, GEMINI_MD, TransformedResource,
+    AGENTS_MD, BuildTarget, CLAUDE_MD, DIR_AGENTS, DIR_AGENTS_SKILLS, DIR_COMMANDS, DIR_SKILLS, GEMINI_MD, SKILL_MD,
+    TransformedResource,
 };
 use crate::utils::fs::ensure_dir;
 use anyhow::{Context, Result};
@@ -8,22 +9,31 @@ use std::path::PathBuf;
 
 pub struct Emitter {
     output_path: PathBuf,
+    target: BuildTarget,
 }
 
 impl Emitter {
-    pub fn new(output_path: impl Into<PathBuf>) -> Self {
+    pub fn new(output_path: impl Into<PathBuf>, target: BuildTarget) -> Self {
         Self {
             output_path: output_path.into(),
+            target,
         }
     }
 
     /// commands/, agents/, skills/ 등 모든 출력 디렉터리와 전역 파일을 전부 삭제합니다.
     pub fn clean_all(&self) -> Result<()> {
-        let dirs = [DIR_CODEX, DIR_COMMANDS, DIR_PROMPTS, DIR_AGENTS, DIR_SKILLS];
+        let dirs = [DIR_COMMANDS, DIR_AGENTS, DIR_SKILLS];
         let files = [GEMINI_MD, CLAUDE_MD, AGENTS_MD];
 
         for dir in dirs {
             let path = self.output_path.join(dir);
+            if path.exists() {
+                fs::remove_dir_all(&path).with_context(|| format!("Failed to remove directory: {:?}", path))?;
+            }
+        }
+
+        if self.target == BuildTarget::Codex {
+            let path = self.output_path.join(DIR_AGENTS_SKILLS);
             if path.exists() {
                 fs::remove_dir_all(&path).with_context(|| format!("Failed to remove directory: {:?}", path))?;
             }
@@ -56,8 +66,8 @@ impl Emitter {
                 continue;
             };
 
-            if first_file.path.starts_with(DIR_SKILLS) {
-                // Skill: 서브디렉터리 전체 삭제 (예: "skills/my_skill/")
+            if first_file.path.starts_with(DIR_SKILLS) || first_file.path.ends_with(SKILL_MD) {
+                // Skill 및 SKILL.md 형식 리소스는 부속 파일을 포함할 수 있으므로 디렉터리 단위로 삭제한다.
                 if let Some(skill_dir) = first_file.path.parent() {
                     let full_path = self.output_path.join(skill_dir);
                     if full_path.exists() {
@@ -135,6 +145,10 @@ mod tests {
         }
     }
 
+    fn make_emitter(root: &std::path::Path) -> Emitter {
+        Emitter::new(root, BuildTarget::ClaudeCode)
+    }
+
     /// Command 파일만 선택적으로 삭제되고 다른 Command 파일은 유지됨을 확인한다.
     #[test]
     fn test_clean_removes_only_specified_command() -> Result<()> {
@@ -145,7 +159,7 @@ mod tests {
         fs::write(root.join(DIR_COMMANDS).join("foo.md"), "foo")?;
         fs::write(root.join(DIR_COMMANDS).join("bar.md"), "bar")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         let resources = vec![make_command_resource(PathBuf::from(DIR_COMMANDS).join("foo.md"))];
         emitter.clean(&resources)?;
 
@@ -166,7 +180,7 @@ mod tests {
         fs::write(skill_dir.join("SKILL.md"), "content")?;
         fs::write(skill_dir.join("extra.py"), "script")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         let resources = vec![make_skill_resource(PathBuf::from(DIR_SKILLS).join("my_skill/SKILL.md"))];
         emitter.clean(&resources)?;
 
@@ -185,7 +199,7 @@ mod tests {
         fs::create_dir(root.join(DIR_COMMANDS))?;
         fs::write(root.join(DIR_COMMANDS).join("other.md"), "other")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         // 빌드 대상 없음
         emitter.clean(&[])?;
 
@@ -207,7 +221,7 @@ mod tests {
         fs::create_dir(root.join(DIR_COMMANDS))?;
         fs::write(root.join(DIR_COMMANDS).join("foo.md"), "foo")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         let resources = vec![make_command_resource(PathBuf::from(DIR_COMMANDS).join("foo.md"))];
         emitter.clean(&resources)?;
 
@@ -228,7 +242,7 @@ mod tests {
         fs::create_dir(root.join(DIR_COMMANDS))?;
         fs::write(root.join(DIR_COMMANDS).join("foo.md"), "foo")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         emitter.clean(&[])?;
 
         assert!(!root.join(GEMINI_MD).exists());
@@ -246,7 +260,7 @@ mod tests {
         let source_file = dir.path().join("source.txt");
         fs::write(&source_file, "extra content")?;
 
-        let emitter = Emitter::new(root);
+        let emitter = make_emitter(root);
         let resources = vec![TransformedResource {
             files: vec![TransformedFile {
                 path: PathBuf::from(DIR_SKILLS).join("my_skill/SKILL.md"),
@@ -268,6 +282,70 @@ mod tests {
             fs::read_to_string(root.join(DIR_SKILLS).join("my_skill/extra.txt"))?,
             "extra content"
         );
+
+        Ok(())
+    }
+
+    /// Codex 타겟의 전체 정리에서 output-dir 외부의 공용 skill 디렉터리도 삭제됨을 확인한다.
+    #[test]
+    fn test_clean_all_removes_codex_agents_skills_dir() -> Result<()> {
+        let dir = tempdir()?;
+        let project_root = dir.path();
+        let output_dir = project_root.join(".codex");
+        let agents_skills_dir = project_root.join(".agents").join("skills");
+
+        fs::create_dir_all(&output_dir)?;
+        fs::create_dir_all(&agents_skills_dir)?;
+        fs::write(agents_skills_dir.join("keep.md"), "remove")?;
+
+        let emitter = Emitter::new(&output_dir, BuildTarget::Codex);
+        emitter.clean_all()?;
+
+        assert!(!agents_skills_dir.exists());
+
+        Ok(())
+    }
+
+    /// Codex가 아닌 타겟의 전체 정리에서는 Codex 공용 skill 디렉터리를 보존함을 확인한다.
+    #[test]
+    fn test_clean_all_preserves_codex_agents_skills_dir_for_non_codex_target() -> Result<()> {
+        let dir = tempdir()?;
+        let project_root = dir.path();
+        let output_dir = project_root.join(".claude");
+        let agents_skills_dir = project_root.join(".agents").join("skills");
+
+        fs::create_dir_all(&output_dir)?;
+        fs::create_dir_all(&agents_skills_dir)?;
+        fs::write(agents_skills_dir.join("keep.md"), "keep")?;
+
+        let emitter = Emitter::new(&output_dir, BuildTarget::ClaudeCode);
+        emitter.clean_all()?;
+
+        assert!(agents_skills_dir.exists());
+
+        Ok(())
+    }
+
+    /// output-dir 외부의 SKILL.md 경로도 부모 디렉터리 단위로 삭제됨을 확인한다.
+    #[test]
+    fn test_clean_removes_parent_dir_for_external_skill_path() -> Result<()> {
+        let dir = tempdir()?;
+        let project_root = dir.path();
+        let output_dir = project_root.join(".codex");
+        let skill_dir = project_root.join(".agents").join("skills").join("foo");
+
+        fs::create_dir_all(&output_dir)?;
+        fs::create_dir_all(&skill_dir)?;
+        fs::write(skill_dir.join(SKILL_MD), "content")?;
+        fs::write(skill_dir.join("extra.txt"), "extra")?;
+
+        let emitter = Emitter::new(&output_dir, BuildTarget::Codex);
+        let resources = vec![make_skill_resource(
+            PathBuf::from(DIR_AGENTS_SKILLS).join("foo").join(SKILL_MD),
+        )];
+        emitter.clean(&resources)?;
+
+        assert!(!skill_dir.exists());
 
         Ok(())
     }

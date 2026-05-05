@@ -30,6 +30,12 @@ impl FileFilter {
         }
 
         let relative_path = path.strip_prefix(root).unwrap_or(path);
+        if relative_path
+            .components()
+            .any(|component| component.as_os_str().to_string_lossy().starts_with('.'))
+        {
+            return Ok(false);
+        }
 
         // 2. 금지된 파일 체크
         if FORBIDDEN_FILES.contains(&file_name) {
@@ -86,6 +92,12 @@ mod tests {
         let hidden_file = root.join(".git");
         fs::write(&hidden_file, "content")?;
         assert!(!filter.is_valid(root, &hidden_file, &patterns)?);
+
+        // 숨김 디렉터리 내부 파일
+        let hidden_dir_file = root.join(".codex").join("agents").join("bot.toml");
+        fs::create_dir_all(hidden_dir_file.parent().unwrap())?;
+        fs::write(&hidden_dir_file, "content")?;
+        assert!(!filter.is_valid(root, &hidden_dir_file, &patterns)?);
 
         // 루트 전역 파일 (AGENTS.md, overrides.yaml) - Skip
         for &f in FORBIDDEN_FILES {

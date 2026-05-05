@@ -25,7 +25,9 @@ Content",
     .unwrap();
 
     // 2. toolkit.yaml 설정
-    let atb_yaml = project_dir.path().join("toolkit.yaml");
+    let output_dir = project_dir.path().join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let atb_yaml = output_dir.join("toolkit.yaml");
     fs::write(
         &atb_yaml,
         format!(
@@ -40,7 +42,7 @@ resources:
     .unwrap();
 
     // 3. 타겟 파일 생성 (업데이트된 멀티라인 설명 포함)
-    let target_agent_dir = project_dir.path().join("agents");
+    let target_agent_dir = output_dir.join("agents");
     fs::create_dir_all(&target_agent_dir).unwrap();
     let target_md = target_agent_dir.join("researcher.md");
     fs::write(
@@ -62,7 +64,7 @@ Content",
     let resource = ctx.registry.all_resources().into_iter().next().unwrap();
     let transformer = ctx.transformer.as_ref();
 
-    syncer.sync_resource(resource, transformer, project_dir.path()).unwrap();
+    syncer.sync_resource(resource, transformer, &output_dir).unwrap();
 
     // 5. 소스 파일이 정확히 업데이트되었는지 확인
     let final_source_content = fs::read_to_string(&source_md).unwrap();

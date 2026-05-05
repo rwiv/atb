@@ -24,22 +24,24 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    fs::write(output_dir.join("toolkit.yaml"), config).unwrap();
 
     // Run build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(output_dir.join("toolkit.yaml"));
     cmd.assert().success();
 
     // Verify outputs
-    assert!(root.join("commands/foo.toml").exists());
-    assert!(root.join("skills/python_expert/SKILL.md").exists());
+    assert!(output_dir.join("commands/foo.toml").exists());
+    assert!(output_dir.join("skills/python_expert/SKILL.md").exists());
 
-    let content = fs::read_to_string(root.join("commands/foo.toml")).unwrap();
+    let content = fs::read_to_string(output_dir.join("commands/foo.toml")).unwrap();
     assert!(content.contains("prompt = \"# Foo Command\""));
     assert!(content.contains("model = \"gemini-1.5-pro\""));
 
-    let skill_content = fs::read_to_string(root.join("skills/python_expert/SKILL.md")).unwrap();
+    let skill_content = fs::read_to_string(output_dir.join("skills/python_expert/SKILL.md")).unwrap();
     assert!(!skill_content.contains("metadata:"));
     assert!(skill_content.contains("type: expert"));
     assert!(skill_content.contains("Python Expert Content"));
@@ -62,14 +64,16 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let output_dir = root.join(".claude");
+    fs::create_dir_all(&output_dir).unwrap();
+    fs::write(output_dir.join("toolkit.yaml"), config).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(output_dir.join("toolkit.yaml"));
     cmd.assert().success();
 
-    assert!(root.join("commands/foo.md").exists());
-    let content = fs::read_to_string(root.join("commands/foo.md")).unwrap();
+    assert!(output_dir.join("commands/foo.md").exists());
+    let content = fs::read_to_string(output_dir.join("commands/foo.md")).unwrap();
     assert!(!content.contains("metadata:"));
     assert!(content.contains("description: Foo command description"));
     assert!(content.contains("# Foo Command"));
@@ -92,19 +96,21 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let output_dir = root.join(".opencode");
+    fs::create_dir_all(&output_dir).unwrap();
+    fs::write(output_dir.join("toolkit.yaml"), config).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(output_dir.join("toolkit.yaml"));
     cmd.assert().success();
 
-    assert!(root.join("commands/foo.md").exists());
-    assert!(root.join("AGENTS.md").exists());
+    assert!(output_dir.join("commands/foo.md").exists());
+    assert!(output_dir.join("AGENTS.md").exists());
 
-    let agents_content = fs::read_to_string(root.join("AGENTS.md")).unwrap();
+    let agents_content = fs::read_to_string(output_dir.join("AGENTS.md")).unwrap();
     assert!(agents_content.contains("# Global Instructions"));
 
-    let content = fs::read_to_string(root.join("commands/foo.md")).unwrap();
+    let content = fs::read_to_string(output_dir.join("commands/foo.md")).unwrap();
     assert!(!content.contains("metadata:"));
     assert!(content.contains("# Foo Command"));
 }

@@ -25,11 +25,23 @@ impl AppContext {
         if !config_path.exists() {
             anyhow::bail!("Config file not found: {}", config_file);
         }
-        let output_dir = config_path.parent().unwrap_or(Path::new(".")).to_path_buf();
+        let abs_config_path = config_path.canonicalize()?;
+        let output_dir = abs_config_path.parent().unwrap_or(Path::new(".")).to_path_buf();
 
         info!("Loading config: {}", config_file);
-        let cfg = load_config(config_file)?;
+        let cfg = load_config(&abs_config_path)?;
         let source_dir = PathBuf::from(&cfg.source);
+
+        let actual_output_dir = output_dir.file_name().and_then(|name| name.to_str()).unwrap_or("");
+        let expected_output_dir = cfg.target.expected_output_dir();
+        if actual_output_dir != expected_output_dir {
+            anyhow::bail!(
+                "output-dir 이름이 타겟 '{}'에 맞지 않습니다. 기대값: '{}', 실제값: '{}'",
+                cfg.target.as_str(),
+                expected_output_dir,
+                actual_output_dir
+            );
+        }
 
         if !source_dir.exists() {
             anyhow::bail!("Source directory does not exist: {}", source_dir.display());
@@ -98,5 +110,74 @@ impl AppContext {
             output_dir,
             exclude_patterns,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::{Mutex, OnceLock};
+    use tempfile::tempdir;
+
+    fn write_toolkit_yaml(dir: &Path, target: &str, source: &Path) {
+        let content = format!("source: {}\ntarget: {}\nresources: {{}}\n", source.display(), target);
+        std::fs::write(dir.join(CONFIG_FILE_NAME), content).unwrap();
+    }
+
+    #[test]
+    fn test_init_succeeds_with_matching_output_dir() {
+        let dir = tempdir().unwrap();
+        let source_dir = dir.path().join("source");
+        let output_dir = dir.path().join(".codex");
+
+        std::fs::create_dir_all(&source_dir).unwrap();
+        std::fs::create_dir_all(&output_dir).unwrap();
+        write_toolkit_yaml(&output_dir, "codex", &source_dir);
+
+        let ctx = AppContext::init(output_dir.join(CONFIG_FILE_NAME).to_str().unwrap()).unwrap();
+
+        assert_eq!(ctx.config.target.as_str(), "codex");
+        assert_eq!(ctx.output_dir.file_name().unwrap(), ".codex");
+    }
+
+    #[test]
+    fn test_init_fails_with_mismatched_output_dir() {
+        let dir = tempdir().unwrap();
+        let source_dir = dir.path().join("source");
+        let output_dir = dir.path().join(".codex");
+
+        std::fs::create_dir_all(&source_dir).unwrap();
+        std::fs::create_dir_all(&output_dir).unwrap();
+        write_toolkit_yaml(&output_dir, "claude-code", &source_dir);
+
+        let err = match AppContext::init(output_dir.join(CONFIG_FILE_NAME).to_str().unwrap()) {
+            Ok(_) => panic!("expected output-dir mismatch error"),
+            Err(err) => err.to_string(),
+        };
+
+        assert!(err.contains("output-dir 이름이 타겟 'claude-code'에 맞지 않습니다"));
+    }
+
+    #[test]
+    fn test_init_with_relative_config_path() {
+        static CWD_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+
+        let _guard = CWD_LOCK.get_or_init(|| Mutex::new(())).lock().unwrap();
+        let original_dir = std::env::current_dir().unwrap();
+        let dir = tempdir().unwrap();
+        let source_dir = dir.path().join("source");
+        let output_dir = dir.path().join(".codex");
+
+        std::fs::create_dir_all(&source_dir).unwrap();
+        std::fs::create_dir_all(&output_dir).unwrap();
+        write_toolkit_yaml(&output_dir, "codex", &source_dir);
+
+        std::env::set_current_dir(&output_dir).unwrap();
+        let result = AppContext::init(CONFIG_FILE_NAME);
+        std::env::set_current_dir(original_dir).unwrap();
+
+        let ctx = result.unwrap();
+        assert_eq!(ctx.config.target.as_str(), "codex");
+        assert_eq!(ctx.output_dir.file_name().unwrap(), ".codex");
     }
 }

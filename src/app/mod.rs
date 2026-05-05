@@ -48,6 +48,7 @@ impl App {
             &ctx.registry,
             &ctx.source_dir,
             &ctx.output_dir,
+            ctx.config.target,
             full_clean,
         )?;
         info!("  - Target: {:?}", ctx.config.target);

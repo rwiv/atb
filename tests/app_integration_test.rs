@@ -12,7 +12,9 @@ fn test_app_build_integration() {
     setup_fixtures(root);
 
     // Create toolkit.yaml
-    let config_path = root.join("toolkit.yaml");
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_path = output_dir.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -39,8 +41,8 @@ resources:
     app.run(cli).expect("App run failed");
 
     // Verify outputs
-    assert!(root.join("commands/foo.toml").exists());
-    assert!(root.join("skills/python_expert/SKILL.md").exists());
+    assert!(output_dir.join("commands/foo.toml").exists());
+    assert!(output_dir.join("skills/python_expert/SKILL.md").exists());
 }
 
 #[test]
@@ -52,7 +54,9 @@ fn test_app_sync_integration() {
     setup_fixtures(root);
 
     // Build first to create targets
-    let config_path = root.join("toolkit.yaml");
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_path = output_dir.join("toolkit.yaml");
     let config = format!(
         r#"
 source: {}
@@ -75,7 +79,7 @@ resources:
     app.run(build_cli).unwrap();
 
     // Modify target file
-    let target_path = root.join("commands/foo.toml");
+    let target_path = output_dir.join("commands/foo.toml");
     let mut content = fs::read_to_string(&target_path).unwrap();
     content = content.replace(
         "description = \"Foo command description\"",

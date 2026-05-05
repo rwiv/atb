@@ -13,7 +13,7 @@ pub const FORBIDDEN_FILES: &[&str] = &[GEMINI_MD, CLAUDE_MD, AGENTS_MD, OVERRIDE
 
 // 디렉터리 이름 상수
 pub const DIR_COMMANDS: &str = "commands";
-pub const DIR_PROMPTS: &str = "prompts";
+pub const DIR_AGENTS_SKILLS: &str = "../.agents/skills";
 pub const DIR_AGENTS: &str = "agents";
 pub const DIR_SKILLS: &str = "skills";
 pub const DIR_CODEX: &str = ".codex";

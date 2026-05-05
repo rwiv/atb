@@ -39,7 +39,9 @@ resources:
 "#,
         source_path.display()
     );
-    let config_file = workspace_path.join("toolkit.yaml");
+    let output_dir = workspace_path.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_file = output_dir.join("toolkit.yaml");
     fs::write(&config_file, config_content).unwrap();
 
     // 3. Run build from workspace
@@ -48,19 +50,19 @@ resources:
     cmd.assert().success();
 
     // 4. Verify outputs are in workspace
-    assert!(workspace_path.join("commands/hello.toml").exists());
-    assert!(workspace_path.join("GEMINI.md").exists());
+    assert!(output_dir.join("commands/hello.toml").exists());
+    assert!(output_dir.join("GEMINI.md").exists());
 
     // 5. Verify source repo is still clean of outputs
     assert!(!source_path.join("commands").exists());
     assert!(!source_path.join("GEMINI.md").exists());
 
     // 6. Verify content
-    let hello_toml = fs::read_to_string(workspace_path.join("commands/hello.toml")).unwrap();
+    let hello_toml = fs::read_to_string(output_dir.join("commands/hello.toml")).unwrap();
     assert!(hello_toml.contains(r##"prompt = "# Hello""##));
     assert!(hello_toml.contains(r##"description = "Greeting""##));
 
-    let gemini_md = fs::read_to_string(workspace_path.join("GEMINI.md")).unwrap();
+    let gemini_md = fs::read_to_string(output_dir.join("GEMINI.md")).unwrap();
     assert!(gemini_md.contains("# Global Instructions"));
 }
 
@@ -76,7 +78,9 @@ resources:
   commands:
     - p1:hello
 "#;
-    let config_file = workspace_path.join("toolkit.yaml");
+    let output_dir = workspace_path.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    let config_file = output_dir.join("toolkit.yaml");
     fs::write(&config_file, config_content).unwrap();
 
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));

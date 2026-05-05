@@ -22,20 +22,22 @@ resources:
 "#,
         root.display()
     );
-    fs::write(root.join("toolkit.yaml"), config).unwrap();
+    let codex_dir = root.join(".codex");
+    fs::create_dir_all(&codex_dir).unwrap();
+    fs::write(codex_dir.join("toolkit.yaml"), config).unwrap();
 
     // 1. Initial Build
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("build").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("build").arg("--config").arg(codex_dir.join("toolkit.yaml"));
     cmd.assert().success();
 
     // Verify build structure for Codex
-    assert!(root.join("prompts/foo.md").exists());
-    assert!(root.join("agents/bar.toml").exists());
+    assert!(root.join(".agents/skills/foo/SKILL.md").exists());
+    assert!(codex_dir.join("agents/bar.toml").exists());
 
     // 2. Modify target files
-    // Modify Command (Markdown in prompts/)
-    let cmd_md_path = root.join("prompts/foo.md");
+    // Modify Command (Markdown in .agents/skills/)
+    let cmd_md_path = root.join(".agents/skills/foo/SKILL.md");
     let mut md_content = fs::read_to_string(&cmd_md_path).unwrap();
     md_content = md_content.replace(
         "description: Foo command description",
@@ -45,14 +47,14 @@ resources:
     fs::write(&cmd_md_path, md_content).unwrap();
 
     // Modify Agent (TOML in agents/)
-    let agent_toml_path = root.join("agents/bar.toml");
+    let agent_toml_path = codex_dir.join("agents/bar.toml");
     let mut toml_content = fs::read_to_string(&agent_toml_path).unwrap();
     println!("Agent TOML before replace: {}", toml_content);
     toml_content = toml_content.replace("# Bar Agent Content", "# Codex Agent Content Updated");
     fs::write(&agent_toml_path, toml_content).unwrap();
 
-    // Modify Agent Description (in .codex/config.toml)
-    let config_toml_path = root.join(".codex/config.toml");
+    // Modify Agent Description (in output-dir config.toml)
+    let config_toml_path = codex_dir.join("config.toml");
     let mut config_toml_content = fs::read_to_string(&config_toml_path).unwrap();
     config_toml_content = config_toml_content.replace(
         "description = \"Bar agent description\"",
@@ -62,7 +64,7 @@ resources:
 
     // 3. Run Sync
     let mut cmd = Command::new(assert_cmd::cargo_bin!("atb"));
-    cmd.arg("sync").arg("--config").arg(root.join("toolkit.yaml"));
+    cmd.arg("sync").arg("--config").arg(codex_dir.join("toolkit.yaml"));
     cmd.assert().success();
 
     // 4. Verify Source

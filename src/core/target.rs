@@ -32,6 +32,15 @@ impl BuildTarget {
         self.as_str()
     }
 
+    pub fn expected_output_dir(&self) -> &'static str {
+        match self {
+            BuildTarget::GeminiCli => ".gemini",
+            BuildTarget::ClaudeCode => ".claude",
+            BuildTarget::OpenCode => ".opencode",
+            BuildTarget::Codex => ".codex",
+        }
+    }
+
     pub fn all_reserved_keys() -> &'static [&'static str] {
         &[TARGET_GEMINI, TARGET_CLAUDE, TARGET_OPENCODE, TARGET_CODEX]
     }
@@ -71,5 +80,13 @@ mod tests {
         assert_eq!(BuildTarget::from_str("opencode").unwrap(), BuildTarget::OpenCode);
         assert_eq!(BuildTarget::from_str("codex").unwrap(), BuildTarget::Codex);
         assert!(BuildTarget::from_str("unknown").is_err());
+    }
+
+    #[test]
+    fn test_expected_output_dir() {
+        assert_eq!(BuildTarget::GeminiCli.expected_output_dir(), ".gemini");
+        assert_eq!(BuildTarget::ClaudeCode.expected_output_dir(), ".claude");
+        assert_eq!(BuildTarget::OpenCode.expected_output_dir(), ".opencode");
+        assert_eq!(BuildTarget::Codex.expected_output_dir(), ".codex");
     }
 }

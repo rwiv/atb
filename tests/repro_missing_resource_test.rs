@@ -1,7 +1,13 @@
 use atb::app::AppContext;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::tempdir;
+
+fn gemini_config_path(root: &Path) -> PathBuf {
+    let output_dir = root.join(".gemini");
+    fs::create_dir_all(&output_dir).unwrap();
+    output_dir.join("toolkit.yaml")
+}
 
 #[test]
 fn test_missing_resource_should_fail_init() {
@@ -12,7 +18,7 @@ fn test_missing_resource_should_fail_init() {
     setup_minimal_fixtures(root);
 
     // Create toolkit.yaml with a non-existent resource
-    let config_path = root.join("toolkit.yaml");
+    let config_path = gemini_config_path(root);
     let config = format!(
         r#"
 source: {}
@@ -52,7 +58,7 @@ fn test_resource_type_mismatch_should_fail_init() {
     fs::write(root.join("AGENTS.md"), "# Global Instructions").unwrap();
 
     // Create toolkit.yaml requesting 'plugin_a:my_res' as a COMMAND
-    let config_path = root.join("toolkit.yaml");
+    let config_path = gemini_config_path(root);
     let config = format!(
         r#"
 source: {}
