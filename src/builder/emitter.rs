@@ -22,7 +22,11 @@ impl Emitter {
 
     /// commands/, agents/, skills/ 등 모든 출력 디렉터리와 전역 파일을 전부 삭제합니다.
     pub fn clean_all(&self) -> Result<()> {
-        let dirs = [DIR_COMMANDS, DIR_AGENTS, DIR_SKILLS];
+        let dirs: &[&str] = if self.target == BuildTarget::Codex {
+            &[DIR_COMMANDS, DIR_AGENTS]
+        } else {
+            &[DIR_COMMANDS, DIR_AGENTS, DIR_SKILLS]
+        };
         let files = [GEMINI_MD, CLAUDE_MD, AGENTS_MD];
 
         for dir in dirs {
@@ -302,6 +306,25 @@ mod tests {
         emitter.clean_all()?;
 
         assert!(!agents_skills_dir.exists());
+
+        Ok(())
+    }
+
+    /// Codex 타겟의 전체 정리에서도 .codex/skills는 보존함을 확인한다.
+    #[test]
+    fn test_clean_all_preserves_codex_local_skills_dir() -> Result<()> {
+        let dir = tempdir()?;
+        let output_dir = dir.path().join(".codex");
+        let local_skills_dir = output_dir.join(DIR_SKILLS);
+
+        fs::create_dir_all(&local_skills_dir)?;
+        fs::write(local_skills_dir.join("manual.txt"), "keep")?;
+
+        let emitter = Emitter::new(&output_dir, BuildTarget::Codex);
+        emitter.clean_all()?;
+
+        assert!(local_skills_dir.exists());
+        assert!(local_skills_dir.join("manual.txt").exists());
 
         Ok(())
     }

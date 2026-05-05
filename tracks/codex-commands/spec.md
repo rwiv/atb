@@ -1,8 +1,8 @@
-# Specification: Codex 트랜스포머 경로 정책 수정
+# Specification: Codex Transformer 경로 정책 수정
 
 ## Overview
 
-Codex CLI의 정책 변경에 맞춰 `atb`의 Codex 트랜스포머가 생성하는 파일 경로 및 구조를 수정합니다. 완료 후에는 Codex CLI의 신규 멀티에이전트 규격에 완전히 부합하는 빌드 결과물이 생성됩니다.
+Codex CLI의 정책 변경에 맞춰 `atb`의 Codex Transformer가 생성하는 파일 경로 및 구조를 수정합니다. 완료 후에는 Codex CLI의 신규 멀티에이전트 규격에 완전히 부합하는 빌드 결과물이 생성됩니다.
 
 - **커맨드 출력 경로**: `prompts/[name].md` → `../.agents/skills/[name]/SKILL.md`
 - **스킬 출력 경로**: `skills/[name]/SKILL.md` → `../.agents/skills/[name]/SKILL.md` (Command와 동일 네임스페이스)

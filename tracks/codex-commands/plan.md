@@ -1,6 +1,6 @@
-# Plan: Codex 트랜스포머 경로 정책 수정
+# Plan: Codex Transformer 경로 정책 수정
 
-## Phase 1: Codex 트랜스포머 경로 수정
+## Phase 1: Codex Transformer 경로 수정
 
 ### Task 1.1: 커맨드·스킬 출력 경로 변경 및 충돌 검증
 
