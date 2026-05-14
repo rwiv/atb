@@ -1,8 +1,0 @@
-source: ~/projects/agents/plugins
-target: gemini-cli
-exclude:
-  - "*.ko.md"
-resources:
-  skills:
-    - everything-claude-code:rust-patterns
-    - everything-claude-code:rust-testing
